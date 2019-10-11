@@ -1,0 +1,409 @@
+@startuml
+skinparam monochrome true
+hide circle
+
+package Graph {
+  class items
+  class arcs
+}
+
+package Nouns {
+  class orgs
+  class persons
+  class places
+  class things
+  class events
+}
+
+package Contacts {
+  class link_contacts
+  class email_contacts
+  class telephone_contacts
+  class postal_contacts
+  class passport_contacts
+  class contacts
+}
+
+package Annotations {
+  class tags
+  class locales
+  class media_types
+  class geo_points
+  class geo_codes
+}
+
+package Details {
+  class person_names
+  class person_pronouns
+}
+
+Graph -d-> Nouns
+Nouns -d-> Contacts
+Contacts -d-> Annotations
+Annotations -d-> Details
+
+items -r[hidden] arcs
+
+orgs -[hidden] persons
+persons -[hidden] places
+places -[hidden] things
+things -[hidden] events
+
+link_contacts -[hidden] email_contacts
+email_contacts -[hidden] telephone_contacts
+telephone_contacts -[hidden] postal_contacts
+postal_contacts -[hidden] passport_contacts
+passport_contacts -[hidden] contacts
+
+tags -r[hidden] codes
+codes -r[hidden] locales
+locales -r[hidden] media_types
+media_types -r[hidden] geo_points
+geo_points -r[hidden] geo_codes
+
+person_names -r[hidden] person_pronouns
+
+class items {
+__ Meta-related __
+  uri text
+__ Content-related __
+  text text
+  json jsonb
+  xml xml
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+}
+
+class arcs {
+__ Subject __
+  subject_uri text
+  subject_database text
+  subject_schea text
+  subject_table text
+  subject_id uuid
+__ Predicate __
+  predicate_uri text
+  predicate_database text
+  predicate_schea text
+  predicate_table text
+  predicate_id uuid
+__ Object __
+  object_uri text
+  object_database text
+  object_schea text
+  object_table text
+  object_id uuid
+__ Lifecycle __
+  start_at_timestamp_utc timestamp
+  stop_at_timestamp_utc timestamp
+__ Modifiers __
+  count integer
+  weight decimal
+  probability decimal
+}
+
+class orgs {
+__ General-related __
+  name text
+  emoji text
+__ Display-related __
+  image_uri text
+  color_hex char
+  css_class text
+  star_count integer
+__ Lifetime-related __
+  start_date date
+  stop_date date
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+}
+
+class persons {
+__ Lifetime-related __
+  birth_date date
+  death_date date
+__ Physical-related __
+  mass_as_grams numeric
+  height_as_meters numeric
+__ Org-related __
+  org_name text
+  org_team text
+  org_role text
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+}
+
+class places {
+  name text
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+}
+
+class things {
+  name text
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+}
+
+class events {
+__ General-related __
+  name text
+__ Lifetime-related __
+  start_timestamp_utc timestamp
+  stop_timestamp_utc timestamp
+  duration_as_seconds real
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+}
+
+class link_contacts {
+  label text
+  uri text
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+}
+
+class email_contacts {
+  address text
+  display_name text
+  addr_spec text
+  ·
+  ·
+  ·
+  ·
+  ·
+}
+
+class telephone_contacts {
+  label text
+  number_text text
+  e164_text varchar
+  e164_country_code varchar
+  e164_national_destination_code varchar
+  e164_group_identification_code varchar
+  e164_trial_identification_code varchar
+  e164_subscriber_number varchar
+}
+
+class postal_contacts {
+  country_text text
+  region_text text
+  locality_text text
+  neighborhood_text text
+  postal_code_text text
+  street_address_text text
+  premise_address_text text
+  global_location_number_text text
+}
+
+class passport_contacts {
+  country_text text
+  number_text text
+  valid_start_date date
+  valid_stop_date date
+  ·
+  ·
+  ·
+  ·
+}
+
+class contacts {
+  name text
+  emoji text
+  image_uri text
+  color_hex char
+  css_class text
+  star_count integer
+  ·
+  ·
+}
+
+class tags {
+  text text
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+}
+
+class codes {
+  set_id id
+  text text
+  name text
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+}
+
+class locales {
+  text text
+  language_code text
+  country_code text
+  script_code text
+  region_code text
+  variant_code text
+  decimal_separator text
+  grouping_separator text
+  currency_code text
+  currency_symbol text
+  quotation_start_delimiter text
+  quotation_stop_delimiter text
+}
+
+class media_types {
+  text text
+  supertype text
+  subtype text
+  tree text
+  suffix  text
+  parameters text[]
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+}
+
+class geo_points {
+  latitude numeric
+  longitude numeric
+  altitude numeric
+  elevation numeric
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+}
+
+class geo_codes {
+  coder_id id
+  text text
+  latitude numeric
+  longitude numeric
+  altitude numeric
+  elevation numeric
+  ·
+  ·
+  ·
+  ·
+  ·
+  ·
+}
+
+class person_names {
+  given_name text
+  middle_name text
+  family_name text
+  legal_name text
+  prefix_name text
+  suffix_name text
+  salutation_name text
+  addressee_name text
+  nickname text
+}
+
+class person_pronouns {
+  subject_pronoun text
+  object_pronoun text
+  dependent_possessive_pronoun text
+  independent_possessive_pronoun text
+  reflexive_pronoun text
+  intensive_pronoun text
+  disjunctive_pronoun text
+  ·
+  ·
+}
+
+@enduml
