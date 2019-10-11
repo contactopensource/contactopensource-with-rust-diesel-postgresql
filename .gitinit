@@ -1,0 +1,99 @@
+#!/bin/sh
+test -e .git && exit 1
+git init-empty
+git remote add origin git@github.com:contactopensource/contactopensource_with_rust_diesel_postgresql.git
+
+add_starters(){
+  for x in .gitignore .gitinit .env CODEOWNERS CONTRIBUTING.md README.md Cargo.toml Cargo.lock diesel.toml doc/uml/tables src/schema.rs src/schema.sh ; do
+      git a $x ; git cm "Add $x file";
+  done
+  for x in database roles privileges; do
+      git a db/setups/*_create_$x ; git cm "Add setup $x"
+  done
+  git a db/migrations/*_diesel_initial_setup ; git cm "Add Diesel initial setup migration"
+
+}
+
+add_traits(){
+  git a src/traits/00_README.md ; git cm "Add traits directory"
+  for x in $(ls -1 src/traits/*.rs | grep -v "/mod.rs$") ; do
+    x=$(basename ${x%%.rs})
+    message=${x//_/ }
+    git a src/traits/${x}.rs ; git cm "Add trait $message"
+  done
+}
+
+add_types(){
+  git a src/types/00_README.md src/types/mod.rs ; git cm "Add types module"
+  for x in $(ls -1 src/types/*.rs | grep -v "/mod.rs$") ; do
+    x=$(basename ${x%%.rs})
+    message=${x//_/ }
+    git a src/types/${x}.rs ; git cm "Add type $message"
+  done
+}
+
+add_tests(){
+  for x in $(ls -1 tests/*.rs) ; do
+    x=$(basename ${x%%.rs})
+    git a tests/${x}.rs ; git cm "Add test file $trait"
+  done
+}
+
+add_concept(){
+  concept=$1
+
+  table="${concept}s"
+  message=${table//_/ }
+  git a db/migrations/*_create_${table}  ; git cm "Add $message migration"
+  git a db/examples/${table}.sql ; git cm "Add $message example"
+
+  model="$concept"
+  message=${model//_/ }
+  dir=src/models/$model
+  git a $dir/${model}.rs ; git cm "Add $message model struct"
+  git a $dir/crud.rs ; git cm "Add $message database CRUD"
+  test -e $dir/${model}/x && git a $dir/${model}/x && git cm "Add $message model fields"
+  git a $dir/fab.rs ; git cm "Add $message fabricator"
+  git a $dir/as_serde_json_value.rs ; git cm "Add $message trait AsSerdeJsonValue"
+  git a $dir/as_sql_insert.rs ; git cm "Add $message trait AsSqlInsert"
+  git a $dir/clap.rs ; git cm "Add $message command line argument parser"
+}
+
+add_concepts(){
+  for x in item arc org person place thing event link_contact email_contact telephone_contact passport_contact postal_contact contact tag code locale media_type geo_point geo_code person_name person_pronoun; do
+    add_concept $x
+  done
+}
+
+add_remainders(){
+  git a src/helpers/zid.rs  ; git cm "Add ZID secure random generator"
+
+  dir=src/helpers/fab
+  git a $dir/a.rs ; git cm "Add a general-purpose fabricator"
+  git a $dir/bigdecimal.rs ; git cm "Add a BigDecimal fabricator"
+  git a $dir/chrono.rs ; git cm "Add Chrono date-time fabricator"
+  git a $dir/uuid.rs ; git cm "Add UUID fabricator"
+
+  dir=src/helpers/parse
+  git a $dir/a.rs ; git cm "Add a general-purpose parse"
+  git a $dir/uuid.rs ; git cm "Add UUID parse"
+  git a $dir/big_decimal.rs ; git cm "Add BigDecimal parse"
+  git a $dir/chrono.rs ; git cm "Add Chrono date-time parse"
+  git a $dir/serde_json.rs ; git cm "Add Serde JSON parse"
+
+  git a src/bin/contactopensource.rs ; git cm "Add binary WIP"
+  git a src/lib.rs ; git cm "Add library WIP"
+}
+
+## Main
+
+add_starters
+add_traits
+add_types
+add_concepts
+add_tests
+add_remainders
+
+echo "You may want to run this now:"
+echo "git push -u origin master -f"
+
