@@ -55,6 +55,7 @@ pub mod traits {
     pub mod as_serde_json_value;
     pub mod as_sql_insert;
     pub mod clap_able;
+    pub mod crud_able;
     pub mod type_contains;
 }
 
