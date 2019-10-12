@@ -1,3 +1,56 @@
+// Macros for "crud" a.k.a. database create, read, update, delete.
+//
+// Status: Wwork in progress, feedback appreciated.
+//
+// Contact: Joel Parker Henderson <joel@joelparkerhenderson.com>
+//
+// License: MIT
+//
+// # Introduction
+//
+// We are seeking ways to use Diesel and PostgreSQL with typical database
+// capabilties for "crud" a.k.a. create, read, update, delete.
+//
+// We are seeing many Diesel examples and blog posts that show how to 
+// do crud capabilities per table and model; so far we have not found 
+// much about how to do the same kinds of capabilties across multiple 
+// tables and models. We would like to write resuable generic crud code.
+// 
+// This file is our attempt to write Rust macros for crud capabilities.
+// We are seeking feedback, guidance, and leads to other approaches.
+//
+// # Configuration
+//
+// These macros are specific to our app's usage:
+//
+//   * The `diesel` crate for object-relational mapping.
+//
+//   * The PostgreSQL database.
+//
+//   * The Diesel PostgreSQL connection type.
+//
+//   * The Diesel PostgreSQL capability to call `.get_results`.
+//
+//   * The `uuid` crate and `uuid::UUID` type for our table id.
+// 
+// You can configure these macros for your own app.
+//
+// To use a different Diesel connection, change this as you want:
+//
+// ```
+// connection: &diesel::pg::PgConnection
+// ```
+// 
+// To use a different table id type, change this as you want:
+//
+// ```
+// id: &uuid::Uuid
+// ```
+//
+// To use a database connection that does not provide `.get_results`,
+// you must omit the macros named `*_with_results`; the easy ways to
+// omit the macros is to comment them, or delete them from this file.
+//
 #[macro_export]
 macro_rules! db_create {
     ($Insertable:ty) => {

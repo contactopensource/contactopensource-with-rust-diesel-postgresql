@@ -561,7 +561,7 @@ fn main() {
         .author("Joel Parker Henderson <joel@contactopensource.com>")
         .about("ContactOpenSource is contact relationship manager address book, open source, and free.");
     
-    // Generic args
+    // Typical args
     app.arg(arg_verbose());
 
     // Output formats
