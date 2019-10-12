@@ -52,6 +52,22 @@ mod test_database_with_diesel {
     //
     ////
 
+// macro_rules! db_create {
+//     ($name:?, $Insertable:ty) => {
+//         #[test]
+//         fn test_insert_$name_as_insertable_struct_test_sql() {
+//             use ::contactopensource::schema::items::dsl::*;
+//             let x = ::contactopensource::models::$name::fab::fab();
+//             let json_value = x.as_serde_json_value();
+//             let insertable_struct: Item = serde_json::from_value::<Item>(json_value).unwrap();
+//             let query = diesel::insert_into(items).values(&insertable_struct);
+//             let exp = x.as_sql_insert();
+//             let act = diesel::debug_query::<Pg, _>(&query).to_string();
+//             assert_eq!(exp, act);
+//         }
+//     }
+// }
+
     //// Item
     #[test]
     fn test_insert_item_as_insertable_struct_test_sql() {

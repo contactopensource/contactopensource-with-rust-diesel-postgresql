@@ -108,14 +108,14 @@ mod test_integration_with_clap {
 
     #[test]
     fn subcommand_count() {
-        let output = Command::new("./target/debug/contactopensource").args(&["count", "arcs"]).output().expect("failure");
+        let output = Command::new("./target/debug/contactopensource").args(&["count", "table", "arcs"]).output().expect("failure");
         let s = String::from_utf8_lossy(&output.stdout);
         assert_eq!(s, "count:0\n"); //TODO
     }
 
     #[test]
     fn subcommand_list() {
-        let output = Command::new("./target/debug/contactopensource").args(&["list", "arcs"]).output().expect("failure");
+        let output = Command::new("./target/debug/contactopensource").args(&["list", "table", "arcs"]).output().expect("failure");
         let s = String::from_utf8_lossy(&output.stdout);
         assert_eq!(s, ""); //TODO
     }

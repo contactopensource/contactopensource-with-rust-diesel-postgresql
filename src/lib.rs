@@ -49,6 +49,12 @@ use ::std::env;
 extern crate uuid;
 pub use ::uuid::Uuid;
 
+#[macro_use] 
+pub mod macros {
+    #[macro_use] 
+    pub mod crud;
+}
+
 pub mod schema;
 
 pub mod traits {
@@ -62,176 +68,43 @@ pub mod traits {
 pub mod types;
 pub use types as t;
 
-pub mod models {
-    pub mod item {
-        pub mod item;
-        pub mod as_serde_json_value;
-        pub mod as_sql_insert;
-        pub mod clap;
-        pub mod crud;
-        pub mod fab;
-    }
-    pub mod arc {
-        pub mod arc;
-        pub mod as_serde_json_value;
-        pub mod as_sql_insert;
-        pub mod clap;
-        pub mod crud;
-        pub mod fab;
-    }
-    pub mod org {
-        pub mod org;
-        pub mod as_serde_json_value;
-        pub mod as_sql_insert;
-        pub mod clap;
-        pub mod crud;
-        pub mod fab;
-    }
-    pub mod person {
-        pub mod person;
-        pub mod as_serde_json_value;
-        pub mod as_sql_insert;
-        pub mod clap;
-        pub mod crud;
-        pub mod fab;
-    }
-    pub mod place {
-        pub mod place;
-        pub mod as_serde_json_value;
-        pub mod as_sql_insert;
-        pub mod clap;
-        pub mod crud;
-        pub mod fab;
-    }
-    pub mod thing {
-        pub mod thing;
-        pub mod as_serde_json_value;
-        pub mod as_sql_insert;
-        pub mod clap;
-        pub mod crud;
-        pub mod fab;
-    }
-    pub mod event {
-        pub mod event;
-        pub mod as_serde_json_value;
-        pub mod as_sql_insert;
-        pub mod clap;
-        pub mod crud;
-        pub mod fab;
-    }
-    pub mod link_contact {
-        pub mod link_contact;
-        pub mod as_serde_json_value;
-        pub mod as_sql_insert;
-        pub mod clap;
-        pub mod crud;
-        pub mod fab;
-    }
-    pub mod email_contact {
-        pub mod email_contact;
-        pub mod as_serde_json_value;
-        pub mod as_sql_insert;
-        pub mod clap;
-        pub mod crud;
-        pub mod fab;
-    }
-    pub mod telephone_contact {
-        pub mod telephone_contact;
-        pub mod as_serde_json_value;
-        pub mod as_sql_insert;
-        pub mod clap;
-        pub mod crud;
-        pub mod fab;
-    }
-    pub mod passport_contact {
-        pub mod passport_contact;
-        pub mod as_serde_json_value;
-        pub mod as_sql_insert;
-        pub mod clap;
-        pub mod crud;
-        pub mod fab;
-    }
-    pub mod postal_contact {
-        pub mod postal_contact;
-        pub mod as_serde_json_value;
-        pub mod as_sql_insert;
-        pub mod clap;
-        pub mod crud;
-        pub mod fab;
-    }
-    pub mod contact {
-        pub mod contact;
-        pub mod as_serde_json_value;
-        pub mod as_sql_insert;
-        pub mod clap;
-        pub mod crud;
-        pub mod fab;
-    }
-    pub mod tag {
-        pub mod tag;
-        pub mod as_serde_json_value;
-        pub mod as_sql_insert;
-        pub mod clap;
-        pub mod crud;
-        pub mod fab;
-    }
-    pub mod code {
-        pub mod code;
-        pub mod as_serde_json_value;
-        pub mod as_sql_insert;
-        pub mod clap;
-        pub mod crud;
-        pub mod fab;
-    }
-    pub mod locale {
-        pub mod locale;
-        pub mod as_serde_json_value;
-        pub mod as_sql_insert;
-        pub mod clap;
-        pub mod crud;
-        pub mod fab;
-    }
-    pub mod media_type {
-        pub mod media_type;
-        pub mod as_serde_json_value;
-        pub mod as_sql_insert;
-        pub mod clap;
-        pub mod crud;
-        pub mod fab;
-    }
-    pub mod geo_point {
-        pub mod geo_point;
-        pub mod as_serde_json_value;
-        pub mod as_sql_insert;
-        pub mod clap;
-        pub mod crud;
-        pub mod fab;
-    }
-    pub mod geo_code {
-        pub mod geo_code;
-        pub mod as_serde_json_value;
-        pub mod as_sql_insert;
-        pub mod clap;
-        pub mod crud;
-        pub mod fab;
-    }
-    pub mod person_name {
-        pub mod person_name;
-        pub mod as_serde_json_value;
-        pub mod as_sql_insert;
-        pub mod clap;
-        pub mod crud;
-        pub mod fab;
-    }
-    pub mod person_pronoun {
-        pub mod person_pronoun;
-        pub mod as_serde_json_value;
-        pub mod as_sql_insert;
-        pub mod clap;
-        pub mod crud;
-        pub mod fab;
-    }
+macro_rules! model {
+    ( $name:ident ) => {
+        pub mod $name {
+            pub mod $name;
+            pub mod as_serde_json_value;
+            pub mod as_sql_insert;
+            pub mod clap;
+            pub mod crud;
+            pub mod fab;
+        }
+    };
 }
+
+pub mod models {
+    model!(item);
+    model!(arc);
+    model!(org);
+    model!(person);
+    model!(place);
+    model!(thing);
+    model!(event);
+    model!(link_contact);
+    model!(email_contact);
+    model!(telephone_contact);
+    model!(passport_contact);
+    model!(postal_contact);
+    model!(contact);
+    model!(tag);
+    model!(code);
+    model!(locale);
+    model!(media_type);
+    model!(geo_point);
+    model!(geo_code);
+    model!(person_name);
+    model!(person_pronoun);
+}
+
 pub mod helpers {
     pub mod parse {
         pub mod a;

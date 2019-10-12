@@ -22,7 +22,7 @@ use ::contactopensource::models::{contact::contact::Contact};
 
 use clap::{App, Arg, ArgMatches, SubCommand};
 use dotenv::dotenv;
-//use ::uuid::Uuid;
+use ::uuid::Uuid;
 use std::env;
 
 //#[macro_use] extern crate maplit;
@@ -41,384 +41,346 @@ struct Config {
 
 ////
 //
-// App: create the clap app and all its settings
+// App args that are for typical apps
 //
 ////
 
-fn app_with_verbose<'a, 'ar>(app: App<'a, 'ar>) -> App<'a, 'ar> {
-    app
-    .arg(Arg::with_name("verbose")
-        .help("verbose output")
+fn arg_verbose<'a, 'b>() -> Arg<'a, 'b> {
+    Arg::with_name("verbose")
+        .help("Verbose output.")
         .short("v")
-        .long("verbose"))
+        .long("verbose")
 }
 
-fn app_with_output_format<'a, 'ar>(app: App<'a, 'ar>) -> App<'a, 'ar> {
-    app
-    .arg(Arg::with_name("output-text")
-        .help("output format is text")
-        .long("output-text"))
-    .arg(Arg::with_name("output-json")
-        .help("output format is JSON")
-        .long("output-json"))
-    .arg(Arg::with_name("output-html")
-        .help("output format is HTML")
-        .long("output-html"))
-    .arg(Arg::with_name("output-xml")
-        .help("output format is XML")
-        .long("output-xml"))
+////
+//
+// App args that are data actions
+//
+////
+
+fn arg_count<'a, 'b>() -> Arg<'a, 'b> {
+    Arg::with_name("count")
+        .help("Count, such as count a table's records")
+        .long("count")
+        .requires("table")
 }
 
-fn app_with_common_fields<'a, 'ar>(app: App<'a, 'ar>) -> App<'a, 'ar> {
-    app
-    .arg(Arg::with_name("id")
-        .help("id as a 32-character lowercase hexadecimal; example: 4d8453c1d45b045c6716699326c7b7fb")
+fn arg_list<'a, 'b>() -> Arg<'a, 'b> {
+    Arg::with_name("list")
+        .ahtml("List, such as list a table's record")
+        .requires("table")
+}
+
+fn arg_create<'a, 'b>() -> Arg<'a, 'b> {
+    Arg::with_name("create")
+        .help("Create, such as create a table record")
+        .requires("table")
+}
+
+fn arg_read<'a, 'b>() -> Arg<'a, 'b> {
+    Arg::with_name("read")
+        .help("Read, such as read a table record")
+        .requires("table")
+        .requires("id")
+}
+
+pub fn arg_update<'a, 'b>() -> Arg<'a, 'b> {
+    Arg::with_name("update")
+        .help("Update a table record")
+        .requires("table")
+        .requires("id")
+}
+
+pub fn arg_delete<'a, 'b>() -> Arg<'a, 'b> {
+    Arg::with_name("delete")
+        .help("Delete a table record")
+        .requires("table")
+        .requires("id")
+}
+
+////
+//
+// App args that are output formats
+//
+////
+
+fn arg_output_text<'a, 'b>() -> Arg<'a, 'b> {
+    Arg::with_name("output-text")
+        .help("Output format is text.")
+        .long("output-text")
+}
+
+fn arg_output_json<'a, 'b>() -> Arg<'a, 'b> {
+    Arg::with_name("output-json")
+        .help("Output format is JSON.")
+        .long("output-json")
+}
+
+fn arg_output_html<'a, 'b>() -> Arg<'a, 'b> {
+    Arg::with_name("output-html")
+        .help("Output format is HTML.")
+        .long("output-html")
+}
+
+fn arg_output_xml<'a, 'b>() -> Arg<'a, 'b> {
+    Arg::with_name("output-xml")
+        .help("Output format is XML.")
+        .long("output-xml")
+}
+
+////
+//
+// App args that are data identifiers
+//
+////
+
+fn arg_table<'a, 'b>() -> Arg<'a, 'b> {
+    Arg::with_name("table")
+        .help("Table name.\nExample: \"persons\"")
+        .long("table")
+        .value_name("NAME")
+        .takes_value(true)
+}
+
+fn arg_id<'a, 'b>() -> Arg<'a, 'b> {
+    Arg::with_name("id")
+        .help("Id as a 32-character lowercase hexadecimal.\nExample: 4d8453c1d45b045c6716699326c7b7fb")
         .long("id")
         .value_name("ZID")
-        .takes_value(true))
-    .arg(Arg::with_name("tenant_id")
-        .help("tenant of the data; example: 7bd380209cd310d3ad4e7f980298cbea")
+        .takes_value(true)
+}
+
+fn arg_tenant_id<'a, 'b>() -> Arg<'a, 'b> {
+    Arg::with_name("tenant_id")
+        .help("Tenant of the data, such as for multi-tenant systems.\nExample: 7bd380209cd310d3ad4e7f980298cbea")
         .long("tenant_id")
         .value_name("ZID")
-        .takes_value(true))
-    .arg(Arg::with_name("typecast")
-        .help("typecast of the data such as for single table inheritance; example: \"friend\"")
+        .takes_value(true)
+    }
+
+fn arg_typecast<'a, 'b>() -> Arg<'a, 'b> {
+    Arg::with_name("typecast")
+        .help("Typecast of the data, such as for single table inheritance.\nExample: \"friend\"")
         .long("typecast")
         .value_name("TEXT")
-        .takes_value(true))
-    .arg(Arg::with_name("state")
-        .help("state of the data such as for a state machine; example: \"active\"")
-        .long("typecast")
+        .takes_value(true)
+}
+
+fn arg_state<'a, 'b>() -> Arg<'a, 'b> {
+    Arg::with_name("state")
+        .help("State of the data, such as for a state machine.\nExample: \"active\"")
+        .long("state")
         .value_name("TEXT")
-        .takes_value(true))
-    .arg(Arg::with_name("updated_at_timestamp_utc")
-        .help("updated at timestamp UTC; example: \"2021-01-01T00:00:00Z\"")
+        .takes_value(true)
+}
+
+fn arg_updated_at_timestamp_utc<'a, 'b>() -> Arg<'a, 'b> {
+    Arg::with_name("updated_at_timestamp_utc")
+        .help("Updated at timestamp UTC.\nExample: \"2021-01-01T00:00:00Z\"")
         .long("updated_at_timestamp_utc")
         .value_name("TIMESTAMP")
-        .takes_value(true))
-    .arg(Arg::with_name("updated_at_clock_count")
-        .help("updated at clock counter; example: \"123456789\"")
+        .takes_value(true)
+}
+
+fn arg_updated_at_clock_count<'a, 'b>() -> Arg<'a, 'b> {
+    Arg::with_name("updated_at_clock_count")
+        .help("Updated at clock counter.\nExample: \"123456789\"")
         .long("updated_at_clock_count")
         .value_name("COUNTER")
-        .takes_value(true))
-    .arg(Arg::with_name("updated_by_text")
-        .help("updated by, in other words, typically freeform; example: \"alice.anderson@example.com\"")
+        .takes_value(true)
+}
+
+fn arg_updated_by_text<'a, 'b>() -> Arg<'a, 'b> {
+    Arg::with_name("updated_by_text")
+        .help("Updated by, in other words, typically freeform.\nExample: \"alice.anderson@example.com\"")
         .long("updated_by_text")
         .value_name("TEXT")
-        .takes_value(true))
+        .takes_value(true)
 }
 
-fn app_arg_value_added_tax_identification_number<'a, 'ar>(app: App<'a, 'ar>) -> App<'a, 'ar> {
-    app.arg(Arg::with_name("value_added_tax_identification_number")
-        .help("value added tax identification number; see: https://schema.org/vatID https://en.wikipedia.org/wiki/VAT_identification_number")
+////
+//
+// App args that are content fields
+//
+////
+
+fn arg_value_added_tax_identification_number<'a, 'b>() -> Arg<'a, 'b> {
+    Arg::with_name("value_added_tax_identification_number")
+        .help("Value added tax identification number.\nSee: https://schema.org/vatID\nSee: https://en.wikipedia.org/wiki/VAT_identification_number")
         .long("value_added_tax_identification_number")
         .value_name("TEXT")
-        .takes_value(true))
+        .takes_value(true)
 }
 
-fn app_arg_legal_entity_identifier<'a, 'ar>(app: App<'a, 'ar>) -> App<'a, 'ar> {
-    app.arg(Arg::with_name("legal_entity_identifier")
-        .help("legal entity identifier; see: https://schema.org/leiCode https://en.wikipedia.org/wiki/Legal_Entity_Identifier")
+fn arg_legal_entity_identifier<'a, 'b>() -> Arg<'a, 'b> {
+    Arg::with_name("legal_entity_identifier")
+        .help("Legal entity identifier.\nSee: https://schema.org/leiCode\nSee: https://en.wikipedia.org/wiki/Legal_Entity_Identifier")
         .long("legal_entity_identifier")
         .value_name("TEXT")
-        .takes_value(true))
+        .takes_value(true)
 }
 
-fn app_arg_ticker_symbol<'a, 'ar>(app: App<'a, 'ar>) -> App<'a, 'ar> {
-    app.arg(Arg::with_name("ticker_symbol")
-        .help("ticker symbol; see: https://en.wikipedia.org/wiki/Ticker_symbol")
+fn arg_ticker_symbol<'a, 'b>() -> Arg<'a, 'b> {
+    Arg::with_name("ticker_symbol")
+        .help("Ticker symbol.\nSee: https://en.wikipedia.org/wiki/Ticker_symbol")
         .long("ticker_symbol")
         .value_name("TEXT")
-        .takes_value(true))
+        .takes_value(true)
 }
 
-fn app_arg_international_standard_of_industrial_classification_v4<'a, 'ar>(app: App<'a, 'ar>) -> App<'a, 'ar> {
-    app.arg(Arg::with_name("international_standard_of_industrial_classification_v4")
-        .help("international standard of industrial classification, revision version 4; see: https://schema.org/isicV4 https://en.wikipedia.org/wiki/International_Standard_Industrial_Classification")
+fn arg_international_standard_of_industrial_classification_v4<'a, 'b>() -> Arg<'a, 'b> {
+    Arg::with_name("international_standard_of_industrial_classification_v4")
+        .help("International Standard of Industrial Classification, Revision 4\nSee: https://schema.org/isicV4 https://en.wikipedia.org/wiki/International_Standard_Industrial_Classification")
         .long("international_standard_of_industrial_classification_v4")
         .value_name("TEXT")
-        .takes_value(true))
-}
-
-fn app_with_subcommand_count<'a, 'ar>(app: App<'a, 'ar>) -> App<'a, 'ar> {
-    app
-    .subcommand(
-        SubCommand::with_name("count")
-        .about("Count")
-        .arg(Arg::with_name("objects")
-            .help("Count which objects? Example: persons")
-            .takes_value(true)
-            .value_name("OBJECTS")
-            .required(true)
-            .index(1))
-    )
-}
-
-fn app_with_subcommand_list<'a, 'ar>(app: App<'a, 'ar>) -> App<'a, 'ar> {
-    app
-    .subcommand(
-        SubCommand::with_name("list")
-        .about("List")
-        .arg(Arg::with_name("objects")
-        .help("Count which objects? Example: persons")
         .takes_value(true)
-        .value_name("OBJECTS")
-            .required(true)
-            .index(1))
-    )
 }
 
-fn app_with_subcommand_create<'a, 'ar>(app: App<'a, 'ar>) -> App<'a, 'ar> {
-    app
-    .subcommand(
-        SubCommand::with_name("create")
-        .about("Create")
-        .arg(Arg::with_name("object")
-            .help("Create which object? Example: person")
-            .takes_value(true)
-            .value_name("OBJECT")
-            .required(true)
-            .index(1))
-        .arg(Arg::with_name("id")
-            .help("id as a 32-character lowercase hexadecimal; example: 4d8453c1d45b045c6716699326c7b7fb")
-            .takes_value(true)
-            .value_name("ID")
-            .required(true)
-            .index(2))
-    )
-}
+////
+//
+// App subcommands that can help with debugging and diagnostics
+//
+////
 
-fn app_with_subcommand_read<'a, 'ar>(app: App<'a, 'ar>) -> App<'a, 'ar> {
-    app
-    .subcommand(
-        SubCommand::with_name("read")
-        .about("Read")
-        .arg(Arg::with_name("object")
-            .help("Read which object? Example: person")
-            .takes_value(true)
-            .value_name("OBJECT")
-            .required(true)
-            .index(1))
-        .arg(Arg::with_name("id")
-            .help("id as a 32-character lowercase hexadecimal; example: 4d8453c1d45b045c6716699326c7b7fb")
-            .takes_value(true)
-            .value_name("ID")
-            .required(true)
-            .index(2))
-    )
-}
-
-pub fn app_with_subcommand_update<'a, 'ar>(app: App<'a, 'ar>) -> App<'a, 'ar> {
-    let app = app
-    .subcommand(
-        SubCommand::with_name("update")
-        .about("Update")
-        .arg(Arg::with_name("object")
-            .help("Update which object? Example: person")
-            .takes_value(true)
-            .value_name("OBJECT")
-            .required(true)
-            .index(1))
-        .arg(Arg::with_name("id")
-            .help("id as a 32-character lowercase hexadecimal; example: 4d8453c1d45b045c6716699326c7b7fb")
-            .takes_value(true)
-            .value_name("ID")
-            .required(true)
-            .index(2))
-        );
-    //TODO learn how to chain app changes
-    //let app = app_with_common_fields(app);
-    app
-}
-
-pub fn app_with_subcommand_delete<'a, 'ar>(app: App<'a, 'ar>) -> App<'a, 'ar> {
-    app
-    .subcommand(
-        SubCommand::with_name("delete")
-        .about("Delete")
-        .arg(Arg::with_name("object")
-            .help("Show which object? Example: person")
-            .takes_value(true)
-            .value_name("OBJECT")
-            .required(true)
-            .index(1))
-        .arg(Arg::with_name("id")
-            .help("id as a 32-character lowercase hexadecimal; example: 4d8453c1d45b045c6716699326c7b7fb")
-            .takes_value(true)
-            .value_name("ID")
-            .required(true)
-            .index(2))
-    )
-}
-
-pub fn app_with_subcommand_db<'a, 'ar>(app: App<'a, 'ar>) -> App<'a, 'ar> {
-    app
-    .subcommand(
+pub fn app_dot_subcommand_db<'a, 'ar>(app: App<'a, 'ar>) -> App<'a, 'ar> {
+    app.subcommand(
         SubCommand::with_name("db")
         .about("Database diagnotics")
-        .help("Show database diagnostics, such as table names")
-    )
+        .help("Show database diagnostics, such as table names"))
 }
 
-pub fn app_with_subcommand_debug<'a, 'ar>(app: App<'a, 'ar>) -> App<'a, 'ar> {
-    app
-    .subcommand(
+pub fn app_dot_subcommand_debug<'a, 'ar>(app: App<'a, 'ar>) -> App<'a, 'ar> {
+    app.subcommand(
         SubCommand::with_name("debug")
         .about("Debug")
-        .help("Debug the application by showing diagnostics")
-    )
+        .help("Debug the application by showing diagnostics"))
 }
 
-pub fn app_with_subcommand_sql<'a, 'ar>(app: App<'a, 'ar>) -> App<'a, 'ar> {
-    app
-    .subcommand(
+pub fn app_dot_subcommand_sql<'a, 'ar>(app: App<'a, 'ar>) -> App<'a, 'ar> {
+    app.subcommand(
         SubCommand::with_name("sql")
         .about("SQL command")
-        .help("Run an arbitrary SQL command string -- use with caution")
-    )
+        .help("Run an arbitrary SQL command string -- use with caution"))
 }
 
 ////
 //
-// Run subcommands
+// Run action
 //
 ////
+macro_rules! verbose {
+    ( $e:expr ) => {
+        if config.verbose { 
+            $e
+        }
+    }
+}
 
-fn run_subcommand_count(config: &Config, matches: &ArgMatches) {
-    if config.verbose { output_subcommand("count") }
-    let arg_action: &str = "count";
-    let arg_objects: &str = matches.value_of("objects").unwrap();
-    if config.verbose { output_action_objects(arg_action, arg_objects); }
+fn run_count(config: &Config, matches: &ArgMatches) {
+    let my_action: &str = "count"; verbose!{ output_action(my_action) }
+    let my_table: &str = matches.value_of("table").unwrap(); verbose!{ output_table(my_table) }
 
-    if config.verbose { output_connect(); }
+    verbose!{ output_connect() }
     let connection = establish_connection();
 
-    if config.verbose { output_execute(); }
+    verbose!{ output_execute() }
     let xx = schema::contacts::table
         .load::<Contact>(&connection)
         .unwrap_or_else(|_|
-            panic!("cannot {} {}", arg_action, arg_objects)
+            panic!("cannot {} {}", my_action, my_table)
         );
     println!("count:{}", xx.len());
 }
 
 fn run_subcommand_list(config: &Config, matches: &ArgMatches) {
-    if config.verbose { output_subcommand("list") }
-    let arg_action: &str = "list";
-    let arg_objects: &str = matches.value_of("objects").unwrap();
-    if config.verbose { output_action_objects(arg_action, arg_objects); }
+    let my_action: &str = "list"; verbose!{ output_action(my_action) }
+    let my_table: &str = matches.value_of("table").unwrap(); verbose!{ output_table(my_table) }
 
-    if config.verbose { output_connect(); };
+    verbose!{ output_connect() };
     let connection = establish_connection();
 
-    if config.verbose { output_execute(); }
+    verbose!{ output_execute() }
     let xx: Vec<Contact> = schema::contacts::table
         .load::<Contact>(&connection)
         .unwrap_or_else(|_|
-            panic!("cannot {} {}", arg_action, arg_objects)
+            panic!("cannot {} {}", my_action, my_table)
         );
     for x in xx { output_x(config, x) }
 }
 
-// fn run_subcommand_create(config: &Config, matches: &ArgMatches) {
-//     if config.verbose { output_subcommand("create") }
-//     let arg_action: &str = "create";
-//     let arg_objects: &str = matches.value_of("objects").unwrap();
-//     if config.verbose { output_action_objects(arg_action, arg_objects); }
+fn run_create(config: &Config, matches: &ArgMatches) {
+    let my_action: &str = "list"; verbose!{ output_action(my_action) }
+    let my_table: &str = matches.value_of("table").unwrap(); verbose!{ output_table(my_table) }
 
-//     if config.verbose { output_connect(); }
-//     let connection = establish_connection();
+    verbose!{ output_connect() };
+    let connection = establish_connection();
 
-//     if config.verbose { output_execute(); }
+    output("TODO");
+    // verbose!{ output_execute() }
+    // let x = diesel::insert_into(schema::contacts::table)
+    //     .values(&insertable) //TODO
+    //     .get_result(&connection)
+    //     .unwrap_or_else(|_|
+    //         panic!("cannot {} {}", my_action, my_table)
+    //     );
+    // output_x(&config, x);
+}
 
-//     let x = diesel::insert_into(schema::contacts::table)
-//         .values(&new_post)
-//         .get_result(&connection)
-//         .unwrap_or_else(|_|
-//             panic!("cannot {} {}", arg_action, arg_objects)
-//         );
-//     output_x(&config, x);
-// }
+fn run_read(config: &Config, matches: &ArgMatches) {
+    let my_action: &str = "read"; verbose!{ output_action(my_action) }
+    let my_table: &str = matches.value_of("table").unwrap(); verbose!{ output_table(my_table) }
+    let my_id: Uuid = Uuid::parse_str(matches.value_of("id").unwrap()).unwrap(); verbose!{ output_id(&my_id) }
 
-// fn run_subcommand_read(config: &Config, matches: &ArgMatches) {
-//     if config.verbose { output_subcommand("read") }
-//     let arg_action: &str = "read";
-//     let arg_object: &str = matches.value_of("object").unwrap();
-//     let arg_id: Uuid = Uuid::parse_str(matches.value_of("id").unwrap()).unwrap();
-//     if config.verbose { output_action_object_id(arg_action, arg_object, &arg_id); }
+    verbose!{ output_connect() }
+    let connection = establish_connection();
 
-//     if config.verbose { output_connect(); }
-//     let connection = establish_connection();
+    output("TODO");
+    // verbose!{ output_execute() }
+    // let x = schema::contacts::table.find(my_id).first::<Contact>(&connection)
+    //     .unwrap_or_else(|_|
+    //         panic!("cannot {} {}", my_action, my_table)
+    //     );
+    // output_x(&config, x);
+}
 
-//     if config.verbose { output_execute(); }
-//     let x = schema::contacts::table.find(arg_id).first::<Contact>(&connection)
-//         .unwrap_or_else(|_|
-//             panic!("cannot {} {} {}", arg_action, arg_object, arg_id)
-//         );
+fn run_update(config: &Config, matches: &ArgMatches) {
+    let my_action: &str = "update"; verbose!{ output_action(my_action) }
+    let my_table: &str = matches.value_of("table").unwrap(); verbose!{ output_table(my_table) }
+    let my_id: Uuid = Uuid::parse_str(matches.value_of("id").unwrap()).unwrap(); verbose!{ output_id(&my_id) }
 
-//     //TODO refactor `find`:
-//     // let _pattern = format!("%{}%", matches.value_of("pattern").unwrap());
-//     // let xx = contacts
-//     //     .filter(name.like(_pattern))
-//     //     .load::<Contact>(&connection)
-//     //     .expect("find");
+    verbose!{ output_connect() }
+    let connection = establish_connection();
 
-//     output_x(&config, x);
-// }
+    output("TODO");
+    // verbose!{ output_execute() }
+    // let x = schema::contacts::table.find(my_id).first::<Contact>(&connection)
+    //    .set(_parsed)
+    //    .get_result::<Contact>(&connection)
+    //    .unwrap_or_else(|_|
+    //         panic!("cannot {} {} {}", my_action, my_table, my_arg)
+    //     );
+    // output_x(&config, x);
+}
 
-// fn run_subcommand_update(config: &Config, matches: &ArgMatches) {
-//     if config.verbose { output_subcommand("edit") }
-//     let arg_action: &str = "edit";
-//     let arg_object: &str = matches.value_of("object").unwrap();
-//     let arg_id: Uuid = Uuid::parse_str(matches.value_of("id").unwrap()).unwrap();
-//     if config.verbose { output_action_object_id(arg_action, arg_object, &arg_id); }
+fn run_delete(config: &Config, matches: &ArgMatches) {
+    let my_action: &str = "delete"; verbose!{ output_action(my_action) }
+    let my_table: &str = matches.value_of("table").unwrap(); verbose!{ output_table(my_table) }
+    let my_id: Uuid = Uuid::parse_str(matches.value_of("id").unwrap()).unwrap(); verbose!{ output_id(&my_id) }
 
-//     if config.verbose { output_connect(); }
-//     let connection = establish_connection();
+    verbose!{ output_connect() }
+    let connection = establish_connection();
 
-//     if config.verbose { output_execute(); }
-//     let x = schema::contacts::table.find(arg_id).first::<Contact>(&connection)
-//         .unwrap_or_else(|_|
-//             panic!("cannot {} {} {}", arg_action, arg_object, arg_id)
-//         );
-
-//     //TODO: refactor `update`:
-//     // let x = diesel::update(contacts.find(id))
-//     //     .set(_parsed)
-//     //     .get_result::<Contact>(&connection)
-//     //     .expect(&format!("Cannot {} {} {}", action, model, id));
-
-//     //TODO: refactor `add`:
-//     // let contact = diesel::insert_into(contacts::table)
-//     //     .values(&_parsed)
-//     //     .get_result::<Contact>(&connection)
-//     //     .expect(&format!("Cannot add id:{}", _id));
-
-
-//     output_x(&config, x);
-// }
-
-// fn run_subcommand_delete(config: &Config, matches: &ArgMatches) {
-//     if config.verbose { output_subcommand("delete") }
-//     let arg_action: &str = "delete";
-//     let arg_object: &str = matches.value_of("object").unwrap();
-//     let arg_id: Uuid = Uuid::parse_str(matches.value_of("id").unwrap()).unwrap();
-//     if config.verbose { output_action_object_id(arg_action, arg_object, &arg_id); }
-
-//     if config.verbose { output_connect(); }
-//     let connection = establish_connection();
-
-//     if config.verbose { output_execute(); }
-//     let x = diesel::delete(schema::contacts::table.filter(schema::contacts::id.eq(arg_id)))
-//         .get_result::<Contact>(&connection)
-//         .unwrap_or_else(|_|
-//             panic!("Cannot {} {} {}", arg_action, arg_object, arg_id)
-//         );
-//     if config.verbose { output_x(&config, x) }
-// }
+    verbose!{ output_execute() }
+    let x = diesel::delete(schema::contacts::table.filter(schema::contacts::id.eq(my_id)))
+        .get_result::<Contact>(&connection)
+        .unwrap_or_else(|_|
+            panic!("cannot {} {} {}", my_action, my_table, my_arg)
+        );
+    verbose!{ output_x(&config, x) }
+}
 
 fn run_subcommand_db(config: &Config, _matches: &ArgMatches) {
-    if config.verbose { output_subcommand("db") }
+    verbose!{ output_subcommand("db") }
     println!("db"); // TODO replace with anything more useful
 
     // let my_table = diesel_dynamic_schema::table("contacts");
@@ -428,7 +390,7 @@ fn run_subcommand_db(config: &Config, _matches: &ArgMatches) {
     // let my_column= my_table.column<pg::types::sql_types::Uuid, _>("id");
     // println!("column:{}", my_column);
 
-    if config.verbose { output_connect(); }
+    verbose!{ output_connect() }
     let _connection = establish_connection();
     //TODO
     // let tablenames: Vec<String> = diesel::sql_query("SELECT tablename FROM pg_catalog.pg_tables where schemaname = 'public' and tablename not like '\_\_%' ;").load::<(String)>(&conn);
@@ -436,7 +398,7 @@ fn run_subcommand_db(config: &Config, _matches: &ArgMatches) {
 }
 
 fn run_subcommand_debug(config: &Config, _matches: &ArgMatches) {
-    if config.verbose { output_subcommand("debug") }
+    verbose!{ output_subcommand("debug") }
     println!("debug"); // TODO replace with anything more useful
 
     println!("primary_key:{:?}", schema::contacts::table.primary_key());
@@ -463,10 +425,10 @@ fn run_subcommand_debug(config: &Config, _matches: &ArgMatches) {
 }
 
 fn run_subcommand_sql(config: &Config, _matches: &ArgMatches) {
-    if config.verbose { output_subcommand("sql") }
+    verbose!{ output_subcommand("sql") }
     println!("sql"); // TODO replace with anything more useful
 
-    if config.verbose { output_connect(); }
+    verbose!{ output_connect() }
     let _connection = establish_connection();
     //TODO
     // results = diesel::sql_query("SELECT * FROM contacts ORDER BY id")
@@ -549,25 +511,28 @@ fn output_execute(){
     println!("execute...");
 }
 
-// fn output_action(_action: &str){
-//     println!("action:{}", _action);
-// }
-
-// fn output_object(_object: &str){
-//     println!("object:{}", _object);
-// }
-
-// fn output_id(_id: &Uuid) {
-//     println!("id:{}", _id.simple())
-// }
-
-fn output_action_objects(arg_action: &str, arg_objects: &str) {
-    println!("action:{} objects:{}", arg_action, arg_objects)
+fn output_action(my_action: &str){
+    println!("action:{}", my_action);
 }
 
-// fn output_action_object_id(arg_action: &str, arg_object: &str, arg_id: &Uuid) {
-//     println!("action:{} object:{} id:{}", arg_action, arg_object, arg_id)
-// }
+fn output_table(my_table: &str){
+    println!("table:{}", my_table);
+}
+
+fn output_id(my_id: &Uuid) {
+    println!("id:{}", my_id.to_simple())
+}
+
+fn output_action_table(my_action: &str, my_table: &str) {
+    output_action(my_action);
+    output_table(my_table);
+}
+
+fn output_action_table_id(my_action: &str, my_table: &str, my_id: &Uuid) {
+    output_action(my_action);
+    output_table(my_table);
+    output_id(&my_id);
+}
 
 // fn output_parsed(_parsed: &Contact) {
 //     println!("parsed:{:?}", _parsed)
@@ -595,22 +560,44 @@ fn main() {
         .version("1.0.0")
         .author("Joel Parker Henderson <joel@contactopensource.com>")
         .about("ContactOpenSource is contact relationship manager address book, open source, and free.");
-    let app = app_with_verbose(app);
-    let app = app_with_output_format(app);
-    let app = app_with_common_fields(app);
-    let app = app_with_subcommand_count(app);
-    let app = app_with_subcommand_list(app);
-    let app = app_with_subcommand_create(app);
-    let app = app_with_subcommand_read(app);
-    let app = app_with_subcommand_update(app);
-    let app = app_with_subcommand_delete(app);
-    let app = app_with_subcommand_db(app);
-    let app = app_with_subcommand_debug(app);
-    let app = app_with_subcommand_sql(app);
-    let app = app_arg_value_added_tax_identification_number(app);
-    let app = app_arg_legal_entity_identifier(app);
-    let app = app_arg_ticker_symbol(app);
-    let app = app_arg_international_standard_of_industrial_classification_v4(app);
+    
+    // Generic args
+    app.arg(arg_verbose());
+
+    // Output formats
+    app.arg(arg_output_text());
+    app.arg(arg_output_json());
+    app.arg(arg_output_html());
+    app.arg(arg_output_xml());
+
+    // Data actions
+    app.arg(arg_count());
+    app.arg(arg_list());
+    app.arg(arg_create());
+    app.arg(arg_read());
+    app.arg(arg_update());
+    app.arg(arg_delete());
+
+    // Data identifiers
+    app.arg(arg_table());
+    app.arg(my_id());
+    app.arg(arg_tenant_id());
+    app.arg(arg_typecast());
+    app.arg(arg_state());
+    app.arg(arg_updated_at_timestamp_utc());
+    app.arg(arg_updated_at_clock_count());
+    app.arg(arg_updated_by_text());
+
+    // Content fields
+    app.arg(arg_value_added_tax_identification_number());
+    app.arg(arg_legal_entity_identifier());
+    app.arg(arg_ticker_symbol());
+    app.arg(arg_international_standard_of_industrial_classification_v4());
+    
+    // Subcommands
+    let app = app_dot_subcommand_db(app);
+    let app = app_dot_subcommand_debug(app);
+    let app = app_dot_subcommand_sql(app);
 
     let matches = app.get_matches();
 
@@ -619,12 +606,12 @@ fn main() {
         output_format: pet_output_format(&matches),
     };
 
-    if      let Some(matches) = matches.subcommand_matches("count")  { run_subcommand_count(&config, matches) }
-    else if let Some(matches) = matches.subcommand_matches("list")   { run_subcommand_list(&config, matches) }
-    // else if let Some(matches) = matches.subcommand_matches("create") {} run_subcommand_create(&config, matches) }
-    // else if let Some(matches) = matches.subcommand_matches("read")   { run_subcommand_read(&config, matches) }
-    // else if let Some(matches) = matches.subcommand_matches("update") { run_subcommand_update(&config, matches) }
-    // else if let Some(matches) = matches.subcommand_matches("delete") { run_subcommand_delete(&config, matches) }
+    if      matches.is_present("count")  { run_count(&config, &matches) }
+    else if matches.is_present("list")   { run_list(&config, &matches) }
+    else if matches.is_present("create") { run_create(&config, &matches) }
+    else if matches.is_present("read")   { run_read(&config, &matches) }
+    else if matches.is_present("update") { run_update(&config, &matches) }
+    else if matches.is_present("delete") { run_delete(&config, &matches) }
     else if let Some(matches) = matches.subcommand_matches("db")     { run_subcommand_db(&config, matches) }
     else if let Some(matches) = matches.subcommand_matches("debug")  { run_subcommand_debug(&config, matches) }
     else if let Some(matches) = matches.subcommand_matches("sql")    { run_subcommand_sql(&config, matches) };
