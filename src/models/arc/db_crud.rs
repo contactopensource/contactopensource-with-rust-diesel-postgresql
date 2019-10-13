@@ -6,7 +6,7 @@ use crate::models::arc as t;
 use t::arc::Arc as T;
 
 impl T {
-    crud!(
+    db_crud!(
         crate::models::arc::arc::Arc,
         crate::models::arc::arc::Arc,
         crate::models::arc::arc::Arc,

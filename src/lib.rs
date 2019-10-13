@@ -52,7 +52,7 @@ pub use ::uuid::Uuid;
 #[macro_use] 
 pub mod macros {
     #[macro_use] 
-    pub mod crud;
+    pub mod db_crud;
 }
 
 pub mod schema;
@@ -61,7 +61,6 @@ pub mod traits {
     pub mod as_serde_json_value;
     pub mod as_sql_insert;
     pub mod clap_able;
-    pub mod crud_able;
     pub mod type_contains;
 }
 
@@ -75,7 +74,7 @@ macro_rules! model {
             pub mod as_serde_json_value;
             pub mod as_sql_insert;
             pub mod clap;
-            pub mod crud;
+            pub mod db_crud;
             pub mod fab;
         }
     };

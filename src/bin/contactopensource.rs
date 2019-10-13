@@ -67,7 +67,7 @@ fn arg_count<'a, 'b>() -> Arg<'a, 'b> {
 
 fn arg_list<'a, 'b>() -> Arg<'a, 'b> {
     Arg::with_name("list")
-        .ahtml("List, such as list a table's record")
+        .help("List, such as list a table's record")
         .requires("table")
 }
 
@@ -268,22 +268,24 @@ pub fn app_dot_subcommand_sql<'a, 'ar>(app: App<'a, 'ar>) -> App<'a, 'ar> {
 // Run action
 //
 ////
-macro_rules! verbose {
-    ( $e:expr ) => {
-        if config.verbose { 
-            $e
-        }
-    }
-}
+
+//TODO make this work
+// macro_rules! verbose {
+//     ( $e:expr ) => {
+//         if config.verbose { 
+//             $e
+//         }
+//     }
+// }
 
 fn run_count(config: &Config, matches: &ArgMatches) {
-    let my_action: &str = "count"; verbose!{ output_action(my_action) }
-    let my_table: &str = matches.value_of("table").unwrap(); verbose!{ output_table(my_table) }
+    let my_action: &str = "count"; if config.verbose { output_action(my_action) };
+    let my_table: &str = matches.value_of("table").unwrap(); if config.verbose { output_table(my_table) };
 
-    verbose!{ output_connect() }
+    if config.verbose { output_connect() };
     let connection = establish_connection();
 
-    verbose!{ output_execute() }
+    if config.verbose { output_execute() };
     let xx = schema::contacts::table
         .load::<Contact>(&connection)
         .unwrap_or_else(|_|
@@ -292,14 +294,14 @@ fn run_count(config: &Config, matches: &ArgMatches) {
     println!("count:{}", xx.len());
 }
 
-fn run_subcommand_list(config: &Config, matches: &ArgMatches) {
-    let my_action: &str = "list"; verbose!{ output_action(my_action) }
-    let my_table: &str = matches.value_of("table").unwrap(); verbose!{ output_table(my_table) }
+fn run_list(config: &Config, matches: &ArgMatches) {
+    let my_action: &str = "list"; if config.verbose { output_action(my_action) };
+    let my_table: &str = matches.value_of("table").unwrap(); if config.verbose { output_table(my_table) };
 
-    verbose!{ output_connect() };
+    if config.verbose { output_connect() };
     let connection = establish_connection();
 
-    verbose!{ output_execute() }
+    if config.verbose { output_execute() };
     let xx: Vec<Contact> = schema::contacts::table
         .load::<Contact>(&connection)
         .unwrap_or_else(|_|
@@ -309,14 +311,14 @@ fn run_subcommand_list(config: &Config, matches: &ArgMatches) {
 }
 
 fn run_create(config: &Config, matches: &ArgMatches) {
-    let my_action: &str = "list"; verbose!{ output_action(my_action) }
-    let my_table: &str = matches.value_of("table").unwrap(); verbose!{ output_table(my_table) }
+    let my_action: &str = "list"; if config.verbose { output_action(my_action) };
+    let my_table: &str = matches.value_of("table").unwrap(); if config.verbose { output_table(my_table) };
 
-    verbose!{ output_connect() };
+    if config.verbose { output_connect() };
     let connection = establish_connection();
 
     output("TODO");
-    // verbose!{ output_execute() }
+    // if config.verbose { output_execute() };
     // let x = diesel::insert_into(schema::contacts::table)
     //     .values(&insertable) //TODO
     //     .get_result(&connection)
@@ -327,15 +329,15 @@ fn run_create(config: &Config, matches: &ArgMatches) {
 }
 
 fn run_read(config: &Config, matches: &ArgMatches) {
-    let my_action: &str = "read"; verbose!{ output_action(my_action) }
-    let my_table: &str = matches.value_of("table").unwrap(); verbose!{ output_table(my_table) }
-    let my_id: Uuid = Uuid::parse_str(matches.value_of("id").unwrap()).unwrap(); verbose!{ output_id(&my_id) }
+    let my_action: &str = "read"; if config.verbose { output_action(my_action) };
+    let my_table: &str = matches.value_of("table").unwrap(); if config.verbose { output_table(my_table) };
+    let my_id: Uuid = Uuid::parse_str(matches.value_of("id").unwrap()).unwrap(); if config.verbose { output_id(&my_id) };
 
-    verbose!{ output_connect() }
+    if config.verbose { output_connect() };
     let connection = establish_connection();
 
     output("TODO");
-    // verbose!{ output_execute() }
+    // if config.verbose { output_execute() };
     // let x = schema::contacts::table.find(my_id).first::<Contact>(&connection)
     //     .unwrap_or_else(|_|
     //         panic!("cannot {} {}", my_action, my_table)
@@ -344,15 +346,15 @@ fn run_read(config: &Config, matches: &ArgMatches) {
 }
 
 fn run_update(config: &Config, matches: &ArgMatches) {
-    let my_action: &str = "update"; verbose!{ output_action(my_action) }
-    let my_table: &str = matches.value_of("table").unwrap(); verbose!{ output_table(my_table) }
-    let my_id: Uuid = Uuid::parse_str(matches.value_of("id").unwrap()).unwrap(); verbose!{ output_id(&my_id) }
+    let my_action: &str = "update"; if config.verbose { output_action(my_action) };
+    let my_table: &str = matches.value_of("table").unwrap(); if config.verbose { output_table(my_table) };
+    let my_id: Uuid = Uuid::parse_str(matches.value_of("id").unwrap()).unwrap(); if config.verbose { output_id(&my_id) };
 
-    verbose!{ output_connect() }
+    if config.verbose { output_connect() };
     let connection = establish_connection();
 
     output("TODO");
-    // verbose!{ output_execute() }
+    // if config.verbose { output_execute() };
     // let x = schema::contacts::table.find(my_id).first::<Contact>(&connection)
     //    .set(_parsed)
     //    .get_result::<Contact>(&connection)
@@ -363,24 +365,24 @@ fn run_update(config: &Config, matches: &ArgMatches) {
 }
 
 fn run_delete(config: &Config, matches: &ArgMatches) {
-    let my_action: &str = "delete"; verbose!{ output_action(my_action) }
-    let my_table: &str = matches.value_of("table").unwrap(); verbose!{ output_table(my_table) }
-    let my_id: Uuid = Uuid::parse_str(matches.value_of("id").unwrap()).unwrap(); verbose!{ output_id(&my_id) }
+    let my_action: &str = "delete"; if config.verbose { output_action(my_action) };
+    let my_table: &str = matches.value_of("table").unwrap(); if config.verbose { output_table(my_table) };
+    let my_id: Uuid = Uuid::parse_str(matches.value_of("id").unwrap()).unwrap(); if config.verbose { output_id(&my_id) };
 
-    verbose!{ output_connect() }
+    if config.verbose { output_connect() };
     let connection = establish_connection();
 
-    verbose!{ output_execute() }
+    if config.verbose { output_execute() };
     let x = diesel::delete(schema::contacts::table.filter(schema::contacts::id.eq(my_id)))
         .get_result::<Contact>(&connection)
         .unwrap_or_else(|_|
-            panic!("cannot {} {} {}", my_action, my_table, my_arg)
+            panic!("cannot {} {} {}", my_action, my_table, my_id)
         );
-    verbose!{ output_x(&config, x) }
+    if config.verbose { output_x(&config, x) };
 }
 
 fn run_subcommand_db(config: &Config, _matches: &ArgMatches) {
-    verbose!{ output_subcommand("db") }
+    if config.verbose { output_subcommand("db") };
     println!("db"); // TODO replace with anything more useful
 
     // let my_table = diesel_dynamic_schema::table("contacts");
@@ -390,7 +392,7 @@ fn run_subcommand_db(config: &Config, _matches: &ArgMatches) {
     // let my_column= my_table.column<pg::types::sql_types::Uuid, _>("id");
     // println!("column:{}", my_column);
 
-    verbose!{ output_connect() }
+    if config.verbose { output_connect() };
     let _connection = establish_connection();
     //TODO
     // let tablenames: Vec<String> = diesel::sql_query("SELECT tablename FROM pg_catalog.pg_tables where schemaname = 'public' and tablename not like '\_\_%' ;").load::<(String)>(&conn);
@@ -398,7 +400,7 @@ fn run_subcommand_db(config: &Config, _matches: &ArgMatches) {
 }
 
 fn run_subcommand_debug(config: &Config, _matches: &ArgMatches) {
-    verbose!{ output_subcommand("debug") }
+    if config.verbose { output_subcommand("debug") };
     println!("debug"); // TODO replace with anything more useful
 
     println!("primary_key:{:?}", schema::contacts::table.primary_key());
@@ -425,10 +427,10 @@ fn run_subcommand_debug(config: &Config, _matches: &ArgMatches) {
 }
 
 fn run_subcommand_sql(config: &Config, _matches: &ArgMatches) {
-    verbose!{ output_subcommand("sql") }
+    if config.verbose { output_subcommand("sql") };
     println!("sql"); // TODO replace with anything more useful
 
-    verbose!{ output_connect() }
+    if config.verbose { output_connect() };
     let _connection = establish_connection();
     //TODO
     // results = diesel::sql_query("SELECT * FROM contacts ORDER BY id")
@@ -494,10 +496,9 @@ fn pet_output_format(matches: &ArgMatches) -> OutputFormat {
 //
 ////
 
-//TODO mark this function as available even though never used
-// fn output(s: &str){
-//     println!("{}", s);
-// }
+fn output(s: &str){
+    println!("{}", s);
+}
 
 fn output_subcommand(s: &str){
     println!("subcommand:{}", s);
@@ -523,21 +524,6 @@ fn output_id(my_id: &Uuid) {
     println!("id:{}", my_id.to_simple())
 }
 
-fn output_action_table(my_action: &str, my_table: &str) {
-    output_action(my_action);
-    output_table(my_table);
-}
-
-fn output_action_table_id(my_action: &str, my_table: &str, my_id: &Uuid) {
-    output_action(my_action);
-    output_table(my_table);
-    output_id(&my_id);
-}
-
-// fn output_parsed(_parsed: &Contact) {
-//     println!("parsed:{:?}", _parsed)
-// }
-
 fn output_x<T: std::fmt::Debug + AsSerdeJsonValue>(config: &Config, x: T) {
     match config.output_format {
         OutputFormat::Text => {
@@ -562,37 +548,37 @@ fn main() {
         .about("ContactOpenSource is contact relationship manager address book, open source, and free.");
     
     // Typical args
-    app.arg(arg_verbose());
+    let app = app.arg(arg_verbose());
 
     // Output formats
-    app.arg(arg_output_text());
-    app.arg(arg_output_json());
-    app.arg(arg_output_html());
-    app.arg(arg_output_xml());
+    let app = app.arg(arg_output_text());
+    let app = app.arg(arg_output_json());
+    let app = app.arg(arg_output_html());
+    let app = app.arg(arg_output_xml());
 
     // Data actions
-    app.arg(arg_count());
-    app.arg(arg_list());
-    app.arg(arg_create());
-    app.arg(arg_read());
-    app.arg(arg_update());
-    app.arg(arg_delete());
+    let app = app.arg(arg_count());
+    let app = app.arg(arg_list());
+    let app = app.arg(arg_create());
+    let app = app.arg(arg_read());
+    let app = app.arg(arg_update());
+    let app = app.arg(arg_delete());
 
     // Data identifiers
-    app.arg(arg_table());
-    app.arg(my_id());
-    app.arg(arg_tenant_id());
-    app.arg(arg_typecast());
-    app.arg(arg_state());
-    app.arg(arg_updated_at_timestamp_utc());
-    app.arg(arg_updated_at_clock_count());
-    app.arg(arg_updated_by_text());
+    let app = app.arg(arg_table());
+    let app = app.arg(arg_id());
+    let app = app.arg(arg_tenant_id());
+    let app = app.arg(arg_typecast());
+    let app = app.arg(arg_state());
+    let app = app.arg(arg_updated_at_timestamp_utc());
+    let app = app.arg(arg_updated_at_clock_count());
+    let app = app.arg(arg_updated_by_text());
 
     // Content fields
-    app.arg(arg_value_added_tax_identification_number());
-    app.arg(arg_legal_entity_identifier());
-    app.arg(arg_ticker_symbol());
-    app.arg(arg_international_standard_of_industrial_classification_v4());
+    let app = app.arg(arg_value_added_tax_identification_number());
+    let app = app.arg(arg_legal_entity_identifier());
+    let app = app.arg(arg_ticker_symbol());
+    let app = app.arg(arg_international_standard_of_industrial_classification_v4());
     
     // Subcommands
     let app = app_dot_subcommand_db(app);

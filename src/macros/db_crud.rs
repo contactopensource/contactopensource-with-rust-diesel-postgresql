@@ -304,7 +304,7 @@ macro_rules! db_delete_with_result {
 }
 
 #[macro_export]
-macro_rules! crud {
+macro_rules! db_crud {
     (
         $Queryable:ty,
         $Insertable:ty,

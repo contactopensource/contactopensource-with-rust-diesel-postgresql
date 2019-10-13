@@ -14,7 +14,7 @@ use t::item::Item as T;
 // use t::item::Item as MyChangeset;
 
 impl T {
-    crud!(
+    db_crud!(
         crate::models::item::item::Item,
         crate::models::item::item::Item,
         crate::models::item::item::Item,
