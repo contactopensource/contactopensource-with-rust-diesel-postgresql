@@ -5,7 +5,6 @@ extern crate diesel;
 extern crate diesel_dynamic_schema;
 extern crate bigdecimal;
 extern crate chrono;
-extern crate dotenv;
 extern crate r2d2;
 extern crate rand;
 extern crate uuid;
@@ -18,12 +17,13 @@ use ::contactopensource::{schema}; //TODO add models, traits
 //use ::contactopensource::helpers::parse;
 use ::contactopensource::traits::as_serde_json_value::AsSerdeJsonValue;
 //use ::contactopensource::traits::as_sql_insert::AsSqlInsert;
-use ::contactopensource::models::{contact::contact::Contact};
+
+use ::contactopensource::schema::items::table as table;
+use ::contactopensource::models::item as t;
+use t::item::Item as T;
 
 use clap::{App, Arg, ArgMatches, SubCommand};
-use dotenv::dotenv;
 use ::uuid::Uuid;
-use std::env;
 
 //#[macro_use] extern crate maplit;
 
@@ -283,11 +283,11 @@ fn run_count(config: &Config, matches: &ArgMatches) {
     let my_table: &str = matches.value_of("table").unwrap(); if config.verbose { output_table(my_table) };
 
     if config.verbose { output_connect() };
-    let connection = establish_connection();
+    let connection = ::contactopensource::db_connection();
 
     if config.verbose { output_execute() };
-    let xx = schema::contacts::table
-        .load::<Contact>(&connection)
+    let xx: Vec<T> = table
+        .load::<T>(&connection)
         .unwrap_or_else(|_|
             panic!("cannot {} {}", my_action, my_table)
         );
@@ -299,11 +299,11 @@ fn run_list(config: &Config, matches: &ArgMatches) {
     let my_table: &str = matches.value_of("table").unwrap(); if config.verbose { output_table(my_table) };
 
     if config.verbose { output_connect() };
-    let connection = establish_connection();
+    let connection = ::contactopensource::db_connection();
 
     if config.verbose { output_execute() };
-    let xx: Vec<Contact> = schema::contacts::table
-        .load::<Contact>(&connection)
+    let xx: Vec<T> = table
+        .load::<T>(&connection)
         .unwrap_or_else(|_|
             panic!("cannot {} {}", my_action, my_table)
         );
@@ -315,17 +315,19 @@ fn run_create(config: &Config, matches: &ArgMatches) {
     let my_table: &str = matches.value_of("table").unwrap(); if config.verbose { output_table(my_table) };
 
     if config.verbose { output_connect() };
-    let connection = establish_connection();
+    let connection = ::contactopensource::db_connection();
 
-    output("TODO");
-    // if config.verbose { output_execute() };
-    // let x = diesel::insert_into(schema::contacts::table)
-    //     .values(&insertable) //TODO
-    //     .get_result(&connection)
-    //     .unwrap_or_else(|_|
-    //         panic!("cannot {} {}", my_action, my_table)
-    //     );
-    // output_x(&config, x);
+    //TODO reify
+    let insertable: T = t::fab::fab(); if config.verbose { output_debug(&insertable) };
+
+    if config.verbose { output_execute() };
+    let x: T = diesel::insert_into(table)
+        .values(&insertable)
+        .get_result(&connection)
+        .unwrap_or_else(|_|
+            panic!("cannot {} {}", my_action, my_table)
+        );
+    output_x(&config, x);
 }
 
 fn run_read(config: &Config, matches: &ArgMatches) {
@@ -334,15 +336,14 @@ fn run_read(config: &Config, matches: &ArgMatches) {
     let my_id: Uuid = Uuid::parse_str(matches.value_of("id").unwrap()).unwrap(); if config.verbose { output_id(&my_id) };
 
     if config.verbose { output_connect() };
-    let connection = establish_connection();
+    let connection = ::contactopensource::db_connection();
 
-    output("TODO");
-    // if config.verbose { output_execute() };
-    // let x = schema::contacts::table.find(my_id).first::<Contact>(&connection)
-    //     .unwrap_or_else(|_|
-    //         panic!("cannot {} {}", my_action, my_table)
-    //     );
-    // output_x(&config, x);
+    if config.verbose { output_execute() };
+    let x: T = table.find(my_id).first::<T>(&connection)
+        .unwrap_or_else(|_|
+            panic!("cannot {} {}", my_action, my_table)
+        );
+    output_x(&config, x);
 }
 
 fn run_update(config: &Config, matches: &ArgMatches) {
@@ -351,17 +352,19 @@ fn run_update(config: &Config, matches: &ArgMatches) {
     let my_id: Uuid = Uuid::parse_str(matches.value_of("id").unwrap()).unwrap(); if config.verbose { output_id(&my_id) };
 
     if config.verbose { output_connect() };
-    let connection = establish_connection();
+    let connection = ::contactopensource::db_connection();
 
-    output("TODO");
-    // if config.verbose { output_execute() };
-    // let x = schema::contacts::table.find(my_id).first::<Contact>(&connection)
-    //    .set(_parsed)
-    //    .get_result::<Contact>(&connection)
-    //    .unwrap_or_else(|_|
-    //         panic!("cannot {} {} {}", my_action, my_table, my_arg)
-    //     );
-    // output_x(&config, x);
+    //TODO reify
+    let changesettable = t::fab::fab(); if config.verbose { output_debug(&changesettable) };
+
+    if config.verbose { output_execute() };
+    let x: T = diesel::update(table.find(my_id))
+       .set(changesettable)
+       .get_result::<T>(&connection)
+       .unwrap_or_else(|_|
+            panic!("cannot {} {} {}", my_action, my_table, my_id)
+        );
+    output_x(&config, x);
 }
 
 fn run_delete(config: &Config, matches: &ArgMatches) {
@@ -370,11 +373,11 @@ fn run_delete(config: &Config, matches: &ArgMatches) {
     let my_id: Uuid = Uuid::parse_str(matches.value_of("id").unwrap()).unwrap(); if config.verbose { output_id(&my_id) };
 
     if config.verbose { output_connect() };
-    let connection = establish_connection();
+    let connection = ::contactopensource::db_connection();
 
     if config.verbose { output_execute() };
-    let x = diesel::delete(schema::contacts::table.filter(schema::contacts::id.eq(my_id)))
-        .get_result::<Contact>(&connection)
+    let x: T = diesel::delete(table.filter(schema::items::id.eq(my_id)))
+        .get_result::<T>(&connection)
         .unwrap_or_else(|_|
             panic!("cannot {} {} {}", my_action, my_table, my_id)
         );
@@ -393,7 +396,7 @@ fn run_subcommand_db(config: &Config, _matches: &ArgMatches) {
     // println!("column:{}", my_column);
 
     if config.verbose { output_connect() };
-    let _connection = establish_connection();
+    let _connection = ::contactopensource::db_connection();
     //TODO
     // let tablenames: Vec<String> = diesel::sql_query("SELECT tablename FROM pg_catalog.pg_tables where schemaname = 'public' and tablename not like '\_\_%' ;").load::<(String)>(&conn);
     // println!("{:?}", my_table.select((my_column)).first(&connection))
@@ -403,9 +406,9 @@ fn run_subcommand_debug(config: &Config, _matches: &ArgMatches) {
     if config.verbose { output_subcommand("debug") };
     println!("debug"); // TODO replace with anything more useful
 
-    println!("primary_key:{:?}", schema::contacts::table.primary_key());
+    println!("primary_key:{:?}", table.primary_key());
 
-    let all_columns: <schema::contacts::table as Table>::AllColumns = schema::contacts::table::all_columns();
+    let all_columns: <table as Table>::AllColumns = table::all_columns();
     println!("all_columns 0..5 {:?} {:?} {:?} {:?} {:?} {:?}",
     all_columns.0,
     all_columns.1,
@@ -415,15 +418,15 @@ fn run_subcommand_debug(config: &Config, _matches: &ArgMatches) {
     all_columns.5,
     );
 
-    // let ac: schema::contacts::SqlType = schema::contacts::table::all_columns();
+    // let ac: schema::items::SqlType = table::all_columns();
     // println!("ac {:?} {:?} {:?}",
     // ac.0,
     // ac.1,
     // ac.2,
     // );
 
-    println!("star:{:?}", schema::contacts::table.star());
-    println!("star:{:?}", schema::contacts::columns::star);
+    println!("star:{:?}", table.star());
+    println!("star:{:?}", schema::items::columns::star);
 }
 
 fn run_subcommand_sql(config: &Config, _matches: &ArgMatches) {
@@ -431,27 +434,12 @@ fn run_subcommand_sql(config: &Config, _matches: &ArgMatches) {
     println!("sql"); // TODO replace with anything more useful
 
     if config.verbose { output_connect() };
-    let _connection = establish_connection();
+    let _connection = ::contactopensource::db_connection();
     //TODO
     // results = diesel::sql_query("SELECT * FROM contacts ORDER BY id")
     // .load(&connection);
 
     // println!("{:?}", results)
-}
-
-
-////
-//
-// Helpers
-//
-////
-
-pub fn establish_connection() -> PgConnection {
-    dotenv().ok();
-    let database_url = env::var("DATABASE_URL")
-        .expect("DATABASE_URL must be set");
-    PgConnection::establish(&database_url)
-        .expect(&format!("Error connecting to {}", database_url))
 }
 
 ////
@@ -484,7 +472,7 @@ fn pet_output_format(matches: &ArgMatches) -> OutputFormat {
 
 // pub fn table_name_to_table(table_name: &str) -> Table<ST=SqlType> {
 //     match table_name {
-//         "contacts" => schema::contacts::table,
+//         "contacts" => table,
 //         "persons" => schema::persons::table,
 //         _ => panic!("Cannot match on table name:{}", table_name),
 //     }
@@ -496,34 +484,47 @@ fn pet_output_format(matches: &ArgMatches) -> OutputFormat {
 //
 ////
 
+#[allow(dead_code)]
 fn output(s: &str){
     println!("{}", s);
 }
 
+#[allow(dead_code)]
+fn output_debug(x: &dyn std::fmt::Debug){
+    println!("{:#?}", x);
+}
+
+#[allow(dead_code)]
 fn output_subcommand(s: &str){
     println!("subcommand:{}", s);
 }
 
+#[allow(dead_code)]
 fn output_connect(){
     println!("connect...");
 }
 
+#[allow(dead_code)]
 fn output_execute(){
     println!("execute...");
 }
 
+#[allow(dead_code)]
 fn output_action(my_action: &str){
     println!("action:{}", my_action);
 }
 
+#[allow(dead_code)]
 fn output_table(my_table: &str){
     println!("table:{}", my_table);
 }
 
+#[allow(dead_code)]
 fn output_id(my_id: &Uuid) {
     println!("id:{}", my_id.to_simple())
 }
 
+#[allow(dead_code)]
 fn output_x<T: std::fmt::Debug + AsSerdeJsonValue>(config: &Config, x: T) {
     match config.output_format {
         OutputFormat::Text => {

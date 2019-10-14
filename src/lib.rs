@@ -61,6 +61,7 @@ pub mod traits {
     pub mod as_serde_json_value;
     pub mod as_sql_insert;
     pub mod clap_able;
+    pub mod db_crud;
     pub mod type_contains;
 }
 
@@ -125,7 +126,7 @@ pub mod helpers {
 // use crate::traits::as_serde_json_value::AsSerdeJsonValue;
 // use crate::traits::as_sql_insert::AsSqlInsert;
 
-pub fn establish_connection() -> PgConnection {
+pub fn db_connection() -> PgConnection {
     dotenv().ok();
 
     let database_url = env::var("DATABASE_URL")

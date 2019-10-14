@@ -19,11 +19,11 @@
 // This file is our attempt to write Rust macros for crud capabilities.
 // We are seeking feedback, guidance, and leads to other approaches.
 //
-// # Configuration
+// # Dependencies
 //
 // These macros are specific to our app's usage:
 //
-//   * The `diesel` crate for object-relational mapping.
+//   * The crate `diesel` for object-relational mapping.
 //
 //   * The PostgreSQL database.
 //
@@ -31,16 +31,43 @@
 //
 //   * The Diesel PostgreSQL capability to call `.get_results`.
 //
-//   * The `uuid` crate and `uuid::UUID` type for our table id.
-// 
+//   * The crate `uuid` for our table primary key type UUID.
+//
+//   * The function `crate::db_connection` which returns a connection.
+//
+// See below for customization.
+//
+// # Usage
+//
+// Write a typical Diesel model, such as a model named `Item`,
+// and similar `ItemInsertable`, `ItemChangesettable`.
+//
+// This macro needs these Diesel traits:
+//
+//   * Queryaable
+//
+//   * Insertable
+//
+//   * AsChangeset
+//
+// ```
+// TODO fix
+//
+// impl crate::traits::db_crud::DBCrud<crate::schema::item::table, uuid::Uuid, Item, ItemInsertable, ItemChangesettable> for T {
+//     db_crud!(
+//        crate::schema::item::table,
+//        uuid::Uuid,
+//        crate::models::item::item::Item,
+//        crate::models::item::item::ItemInsertable,
+//        crate::models::item::item::ItemChangesettable,
+//    );
+// }
+//}
+//
+// # Customization
+//
 // You can configure these macros for your own app.
 //
-// To use a different Diesel connection, change this as you want:
-//
-// ```
-// connection: &diesel::pg::PgConnection
-// ```
-// 
 // To use a different table id type, change this as you want:
 //
 // ```
@@ -50,10 +77,16 @@
 // To use a database connection that does not provide `.get_results`,
 // you must omit the macros named `*_with_results`; the easy ways to
 // omit the macros is to comment them, or delete them from this file.
-//
+
 #[macro_export]
-macro_rules! db_create {
-    ($Insertable:ty) => {
+macro_rules! db_crud {
+    (        
+        $Table:expr,
+        $Id:ty,
+        $Queryable:ty,
+        $Insertable:ty,
+        $Changesettable:ty,
+    ) => {
 
         /// DB create; this uses `.execute`.
         ///
@@ -62,26 +95,20 @@ macro_rules! db_create {
         /// # Example
         ///
         /// ```todo
-        /// let connection: diesel::pg::PgConnection = establish_connection();
         /// let insertable: $Insertable = ...;
-        /// let result: QueryResult<usize> = db_create(connection, insertable);
+        /// let result: QueryResult<usize> = db_create(insertable);
         /// let count: usize = result.unwrap();
         /// ```
 
-        pub fn db_create(
-            connection: &diesel::pg::PgConnection,
+        #[allow(dead_code)]
+        fn db_create(
             insertable: &$Insertable
         ) -> QueryResult<usize> {
-            diesel::insert_into(table)
+            let connection = crate::db_connection();
+            diesel::insert_into($Table)
                 .values(insertable)
-                .execute(connection)
+                .execute(&connection)
         }
-    }
-}
-
-#[macro_export]
-macro_rules! db_create_with_result {
-    ($Insertable:ty, $Queryable:ty) => {
 
         /// DB create; this uses `.get_results`.
         ///
@@ -90,26 +117,20 @@ macro_rules! db_create_with_result {
         /// # Example
         ///
         /// ```todo
-        /// let connection: diesel::pg::PgConnection = establish_connection();
         /// let insertable: $Insertable = ...;
-        /// let result: Result<Queryable, Error> = db_create_with_result(connection, insertable);
+        /// let result: Result<Queryable, Error> = db_create_with_result(insertable);
         /// let queryable: Queryable = result.unwrap();
         /// ```
 
-        pub fn db_create_with_result(
-            connection: &diesel::pg::PgConnection,
+        #[allow(dead_code)]
+        fn db_create_with_result(
             insertable: &$Insertable
         ) -> Result<$Queryable, diesel::result::Error> {
-            diesel::insert_into(table)
+            let connection = crate::db_connection();
+            diesel::insert_into($Table)
                 .values(insertable)
-                .get_result::<$Queryable>(connection)
+                .get_result::<$Queryable>(&connection)
         }
-    }
-}
-
-#[macro_export]
-macro_rules! db_creates {
-    ($Insertable:ty) => {
 
         /// DB creates i.e. multiple values; this uses `.execute`.
         ///
@@ -118,26 +139,20 @@ macro_rules! db_creates {
         /// # Example
         ///
         /// ```todo
-        /// let connection: diesel::pg::PgConnection = establish_connection();
-        /// let insertable: $Insertable = ...;
-        /// let result: QueryResult<usize> = db_creates(connection, insertables);
+        /// let insertable: Vec<$Insertable = ...;
+        /// let result: QueryResult<usize> = db_creates(insertables);
         /// let count: usize = result.unwrap();
         /// ```
 
-        pub fn db_creates(
-            connection: &diesel::pg::PgConnection,
+        #[allow(dead_code)]
+        fn db_creates(
             insertables: &Vec<$Insertable>
         ) -> QueryResult<usize> {
-            diesel::insert_into(table)
+            let connection = crate::db_connection();
+            diesel::insert_into($Table)
                 .values(insertables)
-                .execute(connection)
+                .execute(&connection)
         }
-    }
-}
-
-#[macro_export]
-macro_rules! db_creates_with_results {
-    ($Insertable:ty, $Queryable:ty) => {
 
         /// DB creates i.e. multiple values; this uses `.get_results`.
         ///
@@ -146,26 +161,20 @@ macro_rules! db_creates_with_results {
         /// # Example
         ///
         /// ```todo
-        /// let connection: diesel::pg::PgConnection = establish_connection();
         /// let insertables: Vec<$Insertable> = ...;
         /// let result: Result<Queryable, Error> = db_creates_with_results(connection, insertables);
         /// let results: Vec<Queryable> = result.unwrap();
         /// ```
 
-        pub fn db_creates_with_results(
-            connection: &diesel::pg::PgConnection,
-            insertables: &Vec<$Insertable>
+        #[allow(dead_code)]
+        fn db_creates_with_results(
+            insertables: &Vec<$Insertable>  
         ) -> Result<Vec<$Queryable>, diesel::result::Error> {
-            diesel::insert_into(table)
+            let connection = crate::db_connection();
+            diesel::insert_into($Table)
                 .values(insertables)
-                .get_results::<$Queryable>(connection)
+                .get_results::<$Queryable>(&connection)
         }
-    }
-}
-
-#[macro_export]
-macro_rules! db_read {
-    ($Queryable:ty) => {
 
         /// DB read one row by id.
         ///
@@ -174,24 +183,18 @@ macro_rules! db_read {
         /// # Example
         ///
         /// ```todo
-        /// let connection: diesel::pg::PgConnection = establish_connection();
-        /// let id: uuid::Uuid = ...;
-        /// let result: Result<Queryable, Error> = db_read(connection, id);
+        /// let id: Id = ...;
+        /// let result: Result<Queryable, Error> = db_read(id);
         /// let queryable: Queryable = result.unwrap();
         /// ```
 
-        pub fn db_read(
-            connection: &diesel::pg::PgConnection,
-            id: &uuid::Uuid
+        #[allow(dead_code)]
+        fn db_read(
+            id: &$Id
         ) -> Result<$Queryable, diesel::result::Error> {
-            table.find(&id).first(connection)
+            let connection = crate::db_connection();
+            $Table.find(&id).first(&connection)
         }
-    }
-}
-
-#[macro_export]
-macro_rules! db_update {
-    ($Changeset:ty) => {
 
         /// DB update one row by id; this uses `.execute`.
         ///
@@ -200,28 +203,22 @@ macro_rules! db_update {
         /// # Example
         ///
         /// ```todo
-        /// let connection: diesel::pg::PgConnection = establish_connection();
-        /// let id: uuid::Uuid = ...;
-        /// let changeset: $Changeset = ...;
-        /// let result: QueryResult<usize> = db_update(connection, id, changeset);
+        /// let id: Id = ...;
+        /// let changesettable: $Changesettable= ...;
+        /// let result: QueryResult<usize> = db_update(id, changeset);
         /// let count: usize = result.unwrap();
         /// ```
 
-        pub fn db_update(
-            connection: &diesel::pg::PgConnection,
-            id: &uuid::Uuid,
-            changeset: &$Changeset
+        #[allow(dead_code)]
+        fn db_update(
+            id: &$Id,
+            changesettable: &$Changesettable
         ) -> QueryResult<usize> {
-            diesel::update(table.find(id))
-            .set(changeset)
-            .execute(connection)
+            let connection = crate::db_connection();
+            diesel::update($Table.find(id))
+            .set(changesettable)
+            .execute(&connection)
         }
-    }
-}
-
-#[macro_export]
-macro_rules! db_update_with_result {
-    ($Changeset:ty, $Queryable:ty) => {
 
         /// DB update one row by id; this uses `.get_result`
         ///
@@ -230,28 +227,22 @@ macro_rules! db_update_with_result {
         /// # Example
         ///
         /// ```todo
-        /// let connection: diesel::pg::PgConnection = establish_connection();
-        /// let id: uuid::Uuid = ...;
-        /// let changeset: $Changeset = ...;
-        /// let result: Result<Queryable, Error> = db_update_with_result(connection, id, changeset);
+        /// let id: Id = ...;
+        /// let changesettable: $Changesettable= ...;
+        /// let result: Result<Queryable, Error> = db_update_with_result(id, changeset);
         /// let queryable: Queryable = result.unwrap();
         /// ```
 
-        pub fn db_update_with_result(
-            connection: &diesel::pg::PgConnection,
-            id: &uuid::Uuid,
-            changeset: &$Changeset
+        #[allow(dead_code)]
+        fn db_update_with_result(
+            id: &$Id,
+            changesettable: &$Changesettable
         ) -> Result<$Queryable, diesel::result::Error> {
-            diesel::update(table.find(id))
-                .set(changeset)
-                .get_result::<$Queryable>(connection)
+            let connection = crate::db_connection();
+            diesel::update($Table.find(id))
+                .set(changesettable)
+                .get_result::<$Queryable>(&connection)
         }
-    }
-}
-
-#[macro_export]
-macro_rules! db_delete {
-    () => {
 
         /// DB delete one row by id; this uses `.execute`.
         ///
@@ -260,25 +251,19 @@ macro_rules! db_delete {
         /// # Example
         ///
         /// ```todo
-        /// let connection: diesel::pg::PgConnection = establish_connection();
-        /// let id: uuid::Uuid = ...;
-        /// let result: QueryResult<usize> = db_delete(connection, id);
+        /// let id: Id = ...;
+        /// let result: QueryResult<usize> = db_delete(id);
         /// let count: usize = result.unwrap();
         /// ```
 
-        pub fn db_delete(
-            connection: &diesel::pg::PgConnection,
-            id: &uuid::Uuid
+        #[allow(dead_code)]
+        fn db_delete(
+            id: &$Id
         ) -> QueryResult<usize> {
-            diesel::delete(table.find(id))
-                .execute(connection)
+            let connection = crate::db_connection();
+            diesel::delete($Table.find(id))
+                .execute(&connection)
         }
-    }
-}
-
-#[macro_export]
-macro_rules! db_delete_with_result {
-    ($Queryable:ty) => {
 
         /// DB delete one row by id; this uses `.get_result`.
         ///
@@ -287,37 +272,19 @@ macro_rules! db_delete_with_result {
         /// # Example
         ///
         /// ```todo
-        /// let connection: diesel::pg::PgConnection = establish_connection();
-        /// let id: uuid::Uuid = ...;
-        /// let result: Result<Queryable, Error> = db_create_with_result(connection, id);
+        /// let id: Id = ...;
+        /// let result: Result<Queryable, Error> = db_create_with_result(id);
         /// let queryable: Queryable = result.unwrap();
         /// ```
 
-        pub fn db_delete_with_result(
-            connection: &diesel::pg::PgConnection,
-            id: &uuid::Uuid
+        #[allow(dead_code)]
+        fn db_delete_with_result(
+            id: &$Id
         ) -> Result<$Queryable, diesel::result::Error> {
-            diesel::delete(table.find(id))
-                .get_result::<$Queryable>(connection)
+            let connection = crate::db_connection();
+            diesel::delete($Table.find(id))
+                .get_result::<$Queryable>(&connection)
         }
-    }
-}
 
-#[macro_export]
-macro_rules! db_crud {
-    (
-        $Queryable:ty,
-        $Insertable:ty,
-        $Changeset:ty,
-    ) => {
-        db_create!($Insertable);
-        db_create_with_result!($Insertable, $Queryable);
-        db_creates!($Insertable);
-        db_creates_with_results!($Insertable, $Queryable);
-        db_read!($Queryable);
-        db_update!($Changeset);
-        db_update_with_result!($Changeset, $Queryable);
-        db_delete!();
-        db_delete_with_result!($Queryable);
     }
 }
