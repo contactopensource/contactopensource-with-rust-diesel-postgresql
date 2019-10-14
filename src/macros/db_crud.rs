@@ -286,5 +286,23 @@ macro_rules! db_crud {
                 .get_result::<$Queryable>(&connection)
         }
 
+        /// DB count of rows.
+        ///
+        /// Return the count.
+        ///
+        /// # Example
+        ///
+        /// ```todo
+        /// let result: QueryResult<i64> = db_update(id, changeset);
+        /// let count: i64 = result.unwrap();
+        /// ```
+
+        #[allow(dead_code)]
+        fn db_count(
+        ) -> QueryResult<i64> {
+            let connection = crate::db_connection();
+            $Table.count().get_result(&connection)
+        }
+
     }
 }

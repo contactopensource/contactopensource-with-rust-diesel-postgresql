@@ -46,4 +46,7 @@ pub trait DBCrud<Table, Id, Queryable, Insertable, Changesettable> {
         id: &Id
     ) -> Result<Queryable, Error>;
 
+    fn db_count(
+    ) -> QueryResult<i64>;
+
 }
