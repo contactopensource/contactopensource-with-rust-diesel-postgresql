@@ -53,8 +53,14 @@
 // ```
 // TODO fix
 //
-// impl crate::traits::db_crud::DBCrud<crate::schema::item::table, uuid::Uuid, Item, ItemInsertable, ItemChangesettable> for T {
+// impl crate::traits::db_crud::DBCrud<
+//     uuid::Uuid,
+//     crate::models::item::item::Item,
+//     crate::models::item::item::ItemInsertable,
+//     crate::models::item::item::ItemChangesettable,
+// > for crate::models::item::item::Item {
 //     db_crud!(
+//        crate::db_connection,
 //        crate::schema::item::table,
 //        uuid::Uuid,
 //        crate::models::item::item::Item,
@@ -81,6 +87,7 @@
 #[macro_export]
 macro_rules! db_crud {
     (        
+        $Connection:expr,
         $Table:expr,
         $Id:ty,
         $Queryable:ty,
@@ -104,7 +111,7 @@ macro_rules! db_crud {
         fn db_create(
             insertable: &$Insertable
         ) -> QueryResult<usize> {
-            let connection = crate::db_connection();
+            let connection = $Connection();
             diesel::insert_into($Table)
                 .values(insertable)
                 .execute(&connection)
@@ -119,14 +126,14 @@ macro_rules! db_crud {
         /// ```todo
         /// let insertable: $Insertable = ...;
         /// let result: Result<Queryable, Error> = db_create_with_result(insertable);
-        /// let queryable: Queryable = result.unwrap();
+        /// let row: Queryable = result.unwrap();
         /// ```
 
         #[allow(dead_code)]
         fn db_create_with_result(
             insertable: &$Insertable
         ) -> Result<$Queryable, diesel::result::Error> {
-            let connection = crate::db_connection();
+            let connection = $Connection();
             diesel::insert_into($Table)
                 .values(insertable)
                 .get_result::<$Queryable>(&connection)
@@ -148,7 +155,7 @@ macro_rules! db_crud {
         fn db_creates(
             insertables: &Vec<$Insertable>
         ) -> QueryResult<usize> {
-            let connection = crate::db_connection();
+            let connection = $Connection();
             diesel::insert_into($Table)
                 .values(insertables)
                 .execute(&connection)
@@ -163,14 +170,14 @@ macro_rules! db_crud {
         /// ```todo
         /// let insertables: Vec<$Insertable> = ...;
         /// let result: Result<Queryable, Error> = db_creates_with_results(connection, insertables);
-        /// let results: Vec<Queryable> = result.unwrap();
+        /// let rows: Vec<Queryable> = result.unwrap();
         /// ```
 
         #[allow(dead_code)]
         fn db_creates_with_results(
             insertables: &Vec<$Insertable>  
         ) -> Result<Vec<$Queryable>, diesel::result::Error> {
-            let connection = crate::db_connection();
+            let connection = $Connection();
             diesel::insert_into($Table)
                 .values(insertables)
                 .get_results::<$Queryable>(&connection)
@@ -185,14 +192,14 @@ macro_rules! db_crud {
         /// ```todo
         /// let id: Id = ...;
         /// let result: Result<Queryable, Error> = db_read(id);
-        /// let queryable: Queryable = result.unwrap();
+        /// let row: Queryable = result.unwrap();
         /// ```
 
         #[allow(dead_code)]
         fn db_read(
             id: &$Id
         ) -> Result<$Queryable, diesel::result::Error> {
-            let connection = crate::db_connection();
+            let connection = $Connection();
             $Table.find(&id).first(&connection)
         }
 
@@ -214,7 +221,7 @@ macro_rules! db_crud {
             id: &$Id,
             changesettable: &$Changesettable
         ) -> QueryResult<usize> {
-            let connection = crate::db_connection();
+            let connection = $Connection();
             diesel::update($Table.find(id))
             .set(changesettable)
             .execute(&connection)
@@ -230,7 +237,7 @@ macro_rules! db_crud {
         /// let id: Id = ...;
         /// let changesettable: $Changesettable= ...;
         /// let result: Result<Queryable, Error> = db_update_with_result(id, changeset);
-        /// let queryable: Queryable = result.unwrap();
+        /// let row: Queryable = result.unwrap();
         /// ```
 
         #[allow(dead_code)]
@@ -238,7 +245,7 @@ macro_rules! db_crud {
             id: &$Id,
             changesettable: &$Changesettable
         ) -> Result<$Queryable, diesel::result::Error> {
-            let connection = crate::db_connection();
+            let connection = $Connection();
             diesel::update($Table.find(id))
                 .set(changesettable)
                 .get_result::<$Queryable>(&connection)
@@ -260,7 +267,7 @@ macro_rules! db_crud {
         fn db_delete(
             id: &$Id
         ) -> QueryResult<usize> {
-            let connection = crate::db_connection();
+            let connection = $Connection();
             diesel::delete($Table.find(id))
                 .execute(&connection)
         }
@@ -274,14 +281,14 @@ macro_rules! db_crud {
         /// ```todo
         /// let id: Id = ...;
         /// let result: Result<Queryable, Error> = db_create_with_result(id);
-        /// let queryable: Queryable = result.unwrap();
+        /// let row: Queryable = result.unwrap();
         /// ```
 
         #[allow(dead_code)]
         fn db_delete_with_result(
             id: &$Id
         ) -> Result<$Queryable, diesel::result::Error> {
-            let connection = crate::db_connection();
+            let connection = $Connection();
             diesel::delete($Table.find(id))
                 .get_result::<$Queryable>(&connection)
         }
@@ -293,15 +300,33 @@ macro_rules! db_crud {
         /// # Example
         ///
         /// ```todo
-        /// let result: QueryResult<i64> = db_update(id, changeset);
+        /// let result: QueryResult<i64> = db_count();
         /// let count: i64 = result.unwrap();
         /// ```
 
         #[allow(dead_code)]
         fn db_count(
         ) -> QueryResult<i64> {
-            let connection = crate::db_connection();
+            let connection = $Connection();
             $Table.count().get_result(&connection)
+        }
+
+        /// DB all rows.
+        ///
+        /// Return all the table's rows.
+        ///
+        /// # Example
+        ///
+        /// ```todo
+        /// let result: QueryResult<i64> = db_all();
+        /// let rows: Vec<Queryable> = result.unwrap();
+        /// ```
+
+        #[allow(dead_code)]
+        fn db_all(
+        ) -> Result<Vec<$Queryable>, diesel::result::Error> {
+            let connection = $Connection();
+            $Table.load::<$Queryable>(&connection)
         }
 
     }

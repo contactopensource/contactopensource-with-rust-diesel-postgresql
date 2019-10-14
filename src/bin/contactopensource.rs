@@ -1,42 +1,53 @@
 #![recursion_limit="1024"]
 
 extern crate clap;
+extern crate contactopensource;
 extern crate diesel;
 extern crate diesel_dynamic_schema;
 extern crate bigdecimal;
 extern crate chrono;
+//#[macro_use] extern crate lazy_static;
+#[macro_use] extern crate maplit;
 extern crate r2d2;
 extern crate rand;
 extern crate uuid;
 
+use ::clap::{App, Arg, ArgMatches, SubCommand};
 use ::diesel::prelude::*;
-//use ::diesel_dynamic_schema::{schema, table}; //TODO use
+//use ::std::collections::HashMap;
+use ::uuid::Uuid;
 
-extern crate contactopensource;
 use ::contactopensource::{schema}; //TODO add models, traits
-//use ::contactopensource::helpers::parse;
 use ::contactopensource::traits::as_serde_json_value::AsSerdeJsonValue;
-//use ::contactopensource::traits::as_sql_insert::AsSqlInsert;
+use ::contactopensource::traits::clap_able::ClapAble;
+//use ::contactopensource::traits::fab_able::FabAble;
 
 use ::contactopensource::schema::items::table as table;
 use ::contactopensource::models::item as t;
 use t::item::Item as T;
 
-use clap::{App, Arg, ArgMatches, SubCommand};
-use ::uuid::Uuid;
+enum TableEnum {
+    Items(contactopensource::schema::items::table),
+    Arcs(contactopensource::schema::arcs::table),
+}
 
-//#[macro_use] extern crate maplit;
+enum ActionEnum {
+    Create,
+    Read,
+    Update,
+    Delete,
+    Count,
+    List,
+}
 
-enum OutputFormat {
+enum OutputFormatEnum {
     Text,
     JSON,
-    HTML,
-    XML,
 }
 
 struct Config {
     verbose: bool,
-    output_format: OutputFormat,
+    output_format: OutputFormatEnum,
 }
 
 ////
@@ -50,6 +61,14 @@ fn arg_verbose<'a, 'b>() -> Arg<'a, 'b> {
         .help("Verbose output.")
         .short("v")
         .long("verbose")
+}
+
+fn arg_output_format<'a, 'b>() -> Arg<'a, 'b> {
+    Arg::with_name("output_format")
+        .help("Output format; examples: \"text\", \"json\".")
+        .long("output_format")
+        .value_name("FORMAT")
+        .takes_value(true)
 }
 
 ////
@@ -96,36 +115,6 @@ pub fn arg_delete<'a, 'b>() -> Arg<'a, 'b> {
         .help("Delete a table record")
         .requires("table")
         .requires("id")
-}
-
-////
-//
-// App args that are output formats
-//
-////
-
-fn arg_output_text<'a, 'b>() -> Arg<'a, 'b> {
-    Arg::with_name("output-text")
-        .help("Output format is text.")
-        .long("output-text")
-}
-
-fn arg_output_json<'a, 'b>() -> Arg<'a, 'b> {
-    Arg::with_name("output-json")
-        .help("Output format is JSON.")
-        .long("output-json")
-}
-
-fn arg_output_html<'a, 'b>() -> Arg<'a, 'b> {
-    Arg::with_name("output-html")
-        .help("Output format is HTML.")
-        .long("output-html")
-}
-
-fn arg_output_xml<'a, 'b>() -> Arg<'a, 'b> {
-    Arg::with_name("output-xml")
-        .help("Output format is XML.")
-        .long("output-xml")
 }
 
 ////
@@ -279,24 +268,24 @@ pub fn app_dot_subcommand_sql<'a, 'ar>(app: App<'a, 'ar>) -> App<'a, 'ar> {
 // }
 
 fn run_count(config: &Config, matches: &ArgMatches) {
-    let my_action: &str = "count"; if config.verbose { output_action(my_action) };
-    let my_table: &str = matches.value_of("table").unwrap(); if config.verbose { output_table(my_table) };
+    let action_name: &str = "count"; if config.verbose { output_action(action_name) };
+    let table_name: &str = matches.value_of("table").unwrap(); if config.verbose { output_table(table_name) };
 
     if config.verbose { output_connect() };
     let connection = ::contactopensource::db_connection();
 
     if config.verbose { output_execute() };
-    let xx: Vec<T> = table
-        .load::<T>(&connection)
+    let result: QueryResult<i64> = table.count().get_result(&connection);
+    let count: i64 = result
         .unwrap_or_else(|_|
-            panic!("cannot {} {}", my_action, my_table)
+            panic!("cannot {} {}", action_name, table_name)
         );
-    println!("count:{}", xx.len());
+    println!("count:{}", count);
 }
 
 fn run_list(config: &Config, matches: &ArgMatches) {
-    let my_action: &str = "list"; if config.verbose { output_action(my_action) };
-    let my_table: &str = matches.value_of("table").unwrap(); if config.verbose { output_table(my_table) };
+    let action_name: &str = "list"; if config.verbose { output_action(action_name) };
+    let table_name: &str = matches.value_of("table").unwrap(); if config.verbose { output_table(table_name) };
 
     if config.verbose { output_connect() };
     let connection = ::contactopensource::db_connection();
@@ -305,81 +294,79 @@ fn run_list(config: &Config, matches: &ArgMatches) {
     let xx: Vec<T> = table
         .load::<T>(&connection)
         .unwrap_or_else(|_|
-            panic!("cannot {} {}", my_action, my_table)
+            panic!("cannot {} {}", action_name, table_name)
         );
-    for x in xx { output_x(config, x) }
+    for x in xx { output_x(config, x) };
 }
 
 fn run_create(config: &Config, matches: &ArgMatches) {
-    let my_action: &str = "list"; if config.verbose { output_action(my_action) };
-    let my_table: &str = matches.value_of("table").unwrap(); if config.verbose { output_table(my_table) };
+    let action_name: &str = "list"; if config.verbose { output_action(action_name) };
+    let table_name: &str = matches.value_of("table").unwrap(); if config.verbose { output_table(table_name) };
 
     if config.verbose { output_connect() };
     let connection = ::contactopensource::db_connection();
 
-    //TODO reify
-    let insertable: T = t::fab::fab(); if config.verbose { output_debug(&insertable) };
+    let x: T = T::from_clap_arg_matches(matches); if config.verbose { output_debug(&x) };
 
     if config.verbose { output_execute() };
     let x: T = diesel::insert_into(table)
-        .values(&insertable)
+        .values(&x)
         .get_result(&connection)
         .unwrap_or_else(|_|
-            panic!("cannot {} {}", my_action, my_table)
+            panic!("cannot {} {}", action_name, table_name)
         );
     output_x(&config, x);
 }
 
 fn run_read(config: &Config, matches: &ArgMatches) {
-    let my_action: &str = "read"; if config.verbose { output_action(my_action) };
-    let my_table: &str = matches.value_of("table").unwrap(); if config.verbose { output_table(my_table) };
-    let my_id: Uuid = Uuid::parse_str(matches.value_of("id").unwrap()).unwrap(); if config.verbose { output_id(&my_id) };
+    let action_name: &str = "read"; if config.verbose { output_action(action_name) };
+    let table_name: &str = matches.value_of("table").unwrap(); if config.verbose { output_table(table_name) };
+    let id: Uuid = Uuid::parse_str(matches.value_of("id").unwrap()).unwrap(); if config.verbose { output_id(&id) };
 
     if config.verbose { output_connect() };
     let connection = ::contactopensource::db_connection();
 
     if config.verbose { output_execute() };
-    let x: T = table.find(my_id).first::<T>(&connection)
+    let x: T = table.find(id).first::<T>(&connection)
         .unwrap_or_else(|_|
-            panic!("cannot {} {}", my_action, my_table)
+            panic!("cannot {} {}", action_name, table_name)
         );
     output_x(&config, x);
 }
 
 fn run_update(config: &Config, matches: &ArgMatches) {
-    let my_action: &str = "update"; if config.verbose { output_action(my_action) };
-    let my_table: &str = matches.value_of("table").unwrap(); if config.verbose { output_table(my_table) };
-    let my_id: Uuid = Uuid::parse_str(matches.value_of("id").unwrap()).unwrap(); if config.verbose { output_id(&my_id) };
+    let action_name: &str = "update"; if config.verbose { output_action(action_name) };
+    let table_name: &str = matches.value_of("table").unwrap(); if config.verbose { output_table(table_name) };
+    let id: Uuid = Uuid::parse_str(matches.value_of("id").unwrap()).unwrap(); if config.verbose { output_id(&id) };
 
     if config.verbose { output_connect() };
     let connection = ::contactopensource::db_connection();
 
-    //TODO reify
-    let changesettable = t::fab::fab(); if config.verbose { output_debug(&changesettable) };
+    let x: T = T::from_clap_arg_matches(matches); if config.verbose { output_debug(&x) };
 
     if config.verbose { output_execute() };
-    let x: T = diesel::update(table.find(my_id))
-       .set(changesettable)
+    let x: T = diesel::update(table.find(id))
+       .set(&x)
        .get_result::<T>(&connection)
        .unwrap_or_else(|_|
-            panic!("cannot {} {} {}", my_action, my_table, my_id)
+            panic!("cannot {} {} {}", action_name, table_name, id)
         );
     output_x(&config, x);
 }
 
 fn run_delete(config: &Config, matches: &ArgMatches) {
-    let my_action: &str = "delete"; if config.verbose { output_action(my_action) };
-    let my_table: &str = matches.value_of("table").unwrap(); if config.verbose { output_table(my_table) };
-    let my_id: Uuid = Uuid::parse_str(matches.value_of("id").unwrap()).unwrap(); if config.verbose { output_id(&my_id) };
+    let action_name: &str = "delete"; if config.verbose { output_action(action_name) };
+    let table_name: &str = matches.value_of("table").unwrap(); if config.verbose { output_table(table_name) };
+    let id: Uuid = Uuid::parse_str(matches.value_of("id").unwrap()).unwrap(); if config.verbose { output_id(&id) };
 
     if config.verbose { output_connect() };
     let connection = ::contactopensource::db_connection();
 
     if config.verbose { output_execute() };
-    let x: T = diesel::delete(table.filter(schema::items::id.eq(my_id)))
+    let x: T = diesel::delete(table.filter(schema::items::id.eq(id)))
         .get_result::<T>(&connection)
         .unwrap_or_else(|_|
-            panic!("cannot {} {} {}", my_action, my_table, my_id)
+            panic!("cannot {} {} {}", action_name, table_name, id)
         );
     if config.verbose { output_x(&config, x) };
 }
@@ -388,18 +375,18 @@ fn run_subcommand_db(config: &Config, _matches: &ArgMatches) {
     if config.verbose { output_subcommand("db") };
     println!("db"); // TODO replace with anything more useful
 
-    // let my_table = diesel_dynamic_schema::table("contacts");
-    // println!("table:{}", my_table);
+    // let table_name = diesel_dynamic_schema::table("contacts");
+    // println!("table:{}", table_name);
 
-    // let my_column= my_table.column::<pg::types::sql_types::Uuid, _>("id");
-    // let my_column= my_table.column<pg::types::sql_types::Uuid, _>("id");
+    // let my_column= table_name.column::<pg::types::sql_types::Uuid, _>("id");
+    // let my_column= table_name.column<pg::types::sql_types::Uuid, _>("id");
     // println!("column:{}", my_column);
 
     if config.verbose { output_connect() };
     let _connection = ::contactopensource::db_connection();
     //TODO
     // let tablenames: Vec<String> = diesel::sql_query("SELECT tablename FROM pg_catalog.pg_tables where schemaname = 'public' and tablename not like '\_\_%' ;").load::<(String)>(&conn);
-    // println!("{:?}", my_table.select((my_column)).first(&connection))
+    // println!("{:?}", table_name.select((my_column)).first(&connection))
 }
 
 fn run_subcommand_debug(config: &Config, _matches: &ArgMatches) {
@@ -448,34 +435,60 @@ fn run_subcommand_sql(config: &Config, _matches: &ArgMatches) {
 //
 ////
 
+// lazy_static! {
+//     static ref ACTION_NAME_TO_ENUM: HashMap<String, ActionEnum> = {
+//         hashmap![
+//             String::from("count")  => ActionEnum::Count,
+//             String::from("list")   => ActionEnum::List,
+//             String::from("create") => ActionEnum::Create,
+//             String::from("read")   => ActionEnum::Read,
+//             String::from("update") => ActionEnum::Update,
+//             String::from("delete") => ActionEnum::Delete,
+//         ]
+//     };
+// }
+
+// lazy_static! {
+//     static ref TABLE_NAME_TO_ENUM: HashMap<String, TableEnum> = {
+//         hashmap![
+//             String::from("items") => TableEnum::Items,
+//             String::from("arcs")  => TableEnum::Arcs,
+//         ]
+//     };
+// }
+
+// lazy_static! {
+//     static ref OUTPUT_FORMAT_NAME_TO_ENUM: HashMap<String, OutputFormatEnum> = {
+//         hashmap![
+//             String::from("text") => OutputFormatEnum::Text,
+//             String::from("json") => OutputFormatEnum::JSON,
+//         ]
+//     };
+// }
+
 fn pet_verbose(matches: &ArgMatches) -> bool {
     matches.is_present("verbose")
 }
 
-fn pet_output_format(matches: &ArgMatches) -> OutputFormat {
-    if matches.is_present("output-text") {
-        OutputFormat::Text
-    }
-    else if matches.is_present("output-html") {
-        OutputFormat::HTML
-    }
-    else if matches.is_present("output-json") {
-        OutputFormat::JSON
-    }
-    else if matches.is_present("output-xml") {
-        OutputFormat::XML
-    }
-    else {
-        OutputFormat::Text
+fn pet_output_format(matches: &ArgMatches) -> OutputFormatEnum {
+    match matches.value_of("output_format") {
+        Some("text") => OutputFormatEnum::Text,
+        Some("json") => OutputFormatEnum::JSON,
+        Some(_) => OutputFormatEnum::Text,
+        None => OutputFormatEnum::Text,
     }
 }
 
-// pub fn table_name_to_table(table_name: &str) -> Table<ST=SqlType> {
-//     match table_name {
-//         "contacts" => table,
-//         "persons" => schema::persons::table,
-//         _ => panic!("Cannot match on table name:{}", table_name),
-//     }
+//TODO experiment
+// fn pet_table(matches: &ArgMatches) -> Box<dyn FabAble> {
+//     if let name = matches.value_of("table").unwrap() {
+//         match name {
+//             "items" => Box::new(contactopensource::models::item::item::Item) as Box<dyn FabAble>,
+//             "arcs" => Box::new(contactopensource::models::arc::arc::Arc) as Box<dyn FabAble>,
+//             _ => Box::new(contactopensource::models::item::item::Item) as Box<dyn FabAble>,
+//         }
+//     };
+//     Box::new(contactopensource::models::item::item::Item) as Box<dyn FabAble>
 // }
 
 ////
@@ -510,36 +523,114 @@ fn output_execute(){
 }
 
 #[allow(dead_code)]
-fn output_action(my_action: &str){
-    println!("action:{}", my_action);
+fn output_action(action_name: &str){
+    println!("action:{}", action_name);
 }
 
 #[allow(dead_code)]
-fn output_table(my_table: &str){
-    println!("table:{}", my_table);
+fn output_table(table_name: &str){
+    println!("table:{}", table_name);
 }
 
 #[allow(dead_code)]
-fn output_id(my_id: &Uuid) {
-    println!("id:{}", my_id.to_simple())
+fn output_id(id: &Uuid) {
+    println!("id:{}", id.to_simple())
+}
+
+#[allow(dead_code)]
+fn output_count(my_count: usize) {
+    println!("count:{}", my_count)
 }
 
 #[allow(dead_code)]
 fn output_x<T: std::fmt::Debug + AsSerdeJsonValue>(config: &Config, x: T) {
     match config.output_format {
-        OutputFormat::Text => {
+        OutputFormatEnum::Text => {
             println!("{:?}", x)
         },
-        OutputFormat::JSON => {
+        OutputFormatEnum::JSON => {
             println!("{:?}", x.as_serde_json_value().to_string())
         },
-        OutputFormat::HTML => {
-            panic!("TODO")
-        },
-        OutputFormat::XML => {
-            panic!("TODO")
-        },
     }
+}
+
+////
+//
+// Dispatch all table action commands.
+//
+// TODO: refactor to dynamic dispatch
+////
+
+fn dispatch(config: &Config, matches: &ArgMatches) {
+    if !matches.is_present("table") { return };
+    if !matches.is_present("action") { return };
+    
+    let table_name: &str = matches.value_of("table").unwrap(); if config.verbose { output_table(table_name) };
+    //let table_enum: TableEnum = TABLE_NAME_TO_ENUM[&String::from(table_name)];
+    let table_enum: TableEnum = match table_name {
+        "items" => TableEnum::Items(contactopensource::schema::items::table),
+        "arcs" => TableEnum::Arcs(contactopensource::schema::arcs::table),
+        _ => return,
+    };
+
+    let action_name: &str = matches.value_of("action").unwrap(); if config.verbose { output_action(action_name) };
+    //let action_enum: ActionEnum = ACTION_NAME_TO_ENUM[&String::from(action_name)];
+    let action_enum: ActionEnum = match action_name {
+        "count" => ActionEnum::Count,
+        "list" => ActionEnum::List,
+        _ => return,
+    };
+
+    // match table_enum {
+    //     TableEnum::Items => {
+    //         match action_enum { 
+    //             ActionEnum::Count => {
+    //                 let connection = contactopensource::db_connection();
+    //                 let result: QueryResult<i64> = contactopensource::schema::items::table.count().get_result(&connection);
+    //                 let count: i64 = result.unwrap_or_else(|_| panic!("cannot {} {}", action_name, table_name));
+    //                 println!("count:{}", count);
+    //             },
+    //             ActionEnum::List => {
+    //                 let connection = contactopensource::db_connection();
+    //                 let result: Result<Vec<contactopensource::models::item::item::Item>, diesel::result::Error> = contactopensource::schema::items::table.load::<contactopensource::models::item::item::Item>(&connection);
+    //                 let xx: Vec<contactopensource::models::item::item::Item> = result.unwrap_or_else(|_| panic!("cannot {} {}", action_name, table_name));
+    //                 for x in xx { output_x(config, x) };
+    //             },
+    //             _ => {
+    //                 panic!("Cannot dispatch because action is unrecognized; action_name:{}", action_name);
+    //             },
+    //         };
+    //     },
+    //     _ => {
+    //         panic!("Cannot dispatch because table is unrecognized; table_name:{}", table_name);
+    //     },
+    // };
+
+    // match table_enum {
+    //     TableEnum::Items(table) => {
+    //         match action_enum { 
+    //             ActionEnum::Count => {
+    //                 let connection = contactopensource::db_connection();
+    //                 let result: QueryResult<i64> = table.count().get_result(&connection);
+    //                 let count: i64 = result.unwrap_or_else(|_| panic!("cannot {} {}", action_name, table_name));
+    //                 println!("count:{}", count);
+    //             },
+    //             ActionEnum::List => {
+    //                 let connection = contactopensource::db_connection();
+    //                 let result: Result<Vec<contactopensource::models::item::item::Item>, diesel::result::Error> = table.load::<contactopensource::models::item::item::Item>(&connection);
+    //                 let xx: Vec<contactopensource::models::item::item::Item> = result.unwrap_or_else(|_| panic!("cannot {} {}", action_name, table_name));
+    //                 for x in xx { output_x(config, x) };
+    //             },
+    //             _ => {
+    //                 panic!("Cannot dispatch because action is unrecognized; action_name:{}", action_name);
+    //             },
+    //         };
+    //     },
+    //     _ => {
+    //         panic!("Cannot dispatch because table is unrecognized; table_name:{}", table_name);
+    //     },
+    // };
+
 }
 
 fn main() {
@@ -550,12 +641,7 @@ fn main() {
     
     // Typical args
     let app = app.arg(arg_verbose());
-
-    // Output formats
-    let app = app.arg(arg_output_text());
-    let app = app.arg(arg_output_json());
-    let app = app.arg(arg_output_html());
-    let app = app.arg(arg_output_xml());
+    let app = app.arg(arg_output_format());
 
     // Data actions
     let app = app.arg(arg_count());

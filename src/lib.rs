@@ -62,6 +62,7 @@ pub mod traits {
     pub mod as_sql_insert;
     pub mod clap_able;
     pub mod db_crud;
+    pub mod fab_able;
     pub mod type_contains;
 }
 

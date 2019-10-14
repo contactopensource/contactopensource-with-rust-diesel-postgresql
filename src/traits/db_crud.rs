@@ -2,11 +2,13 @@ use diesel::result::Error;
 use diesel::result::QueryResult;
 
 /// For documentation, see corresponding macro `db_crud`.
-///
-/// Note: the `Table` type is currently not used; it's provided
-/// for future use, and also to harmonize with the macro.
 
-pub trait DBCrud<Table, Id, Queryable, Insertable, Changesettable> {
+pub trait DBCrud<
+    Id, 
+    Queryable, 
+    Insertable, 
+    Changesettable
+> {
 
     fn db_create(
         insertable: &Insertable
@@ -48,5 +50,8 @@ pub trait DBCrud<Table, Id, Queryable, Insertable, Changesettable> {
 
     fn db_count(
     ) -> QueryResult<i64>;
+
+    fn db_all(
+    ) -> Result<Vec<Queryable>, Error>;
 
 }
