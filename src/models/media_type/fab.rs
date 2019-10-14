@@ -1,9 +1,9 @@
 use crate::types;
 use crate::models::media_type::media_type::MediaType as T;
 
-impl crate::traits::fab_able::FabAble<T> for T {
+impl crate::traits::fab_able::FabAble for T {
     fn fab() -> T {
-        T {
+        Self {
             id: types::id::fab(),
 
             // Programming-related
