@@ -2,25 +2,41 @@ use clap::{App, Arg, ArgMatches};
 use crate::types;
 use crate::models::email_contact::email_contact::EmailContact as T;
 
-impl crate::traits::clap_able::ClapAble for T {
+impl T {
 
-    fn init_clap_app<'a, 'ar>(app: App<'a, 'ar>) -> App<'a, 'ar> {
-        app
-        .arg(Arg::with_name("address")
+    fn arg_address<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("address")
             .help("address; example: \"Alice Adams <alice.anderson@example.com>\"")
             .long("address")
             .value_name("TEXT")
-            .takes_value(true))
-        .arg(Arg::with_name("display_name")
+            .takes_value(true)
+    }
+
+    fn arg_display_name<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("display_name")
             .help("display name; example: \"Alice Adams\"")
             .long("display_name")
             .value_name("TEXT")
-            .takes_value(true))
-        .arg(Arg::with_name("addr_spec")
+            .takes_value(true)
+    }
+
+    fn arg_addr_spec<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("addr_spec")
             .help("address specification; example: \"alice.anderson@example.com\"")
             .long("addr_spec")
             .value_name("TEXT")
-            .takes_value(true))
+            .takes_value(true)
+    }
+
+}
+
+impl crate::traits::clap_able::ClapAble for T {
+
+    fn init_clap_app<'a, 'ar>(app: App<'a, 'ar>) -> App<'a, 'ar> {
+        let app = app.arg(Self::arg_address());
+        let app = app.arg(Self::arg_display_name());
+        let app = app.arg(Self::arg_addr_spec());
+        app
     }
 
     fn from_clap_arg_matches(matches: &ArgMatches) -> T {

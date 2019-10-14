@@ -2,25 +2,41 @@ use clap::{App, Arg, ArgMatches};
 use crate::types;
 use crate::models::code::code::Code as T;
 
-impl crate::traits::clap_able::ClapAble for T {
+impl T {
 
-    fn init_clap_app<'a, 'ar>(app: App<'a, 'ar>) -> App<'a, 'ar> {
-        app
-        .arg(Arg::with_name("set_id")
+    fn arg_set_id<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("set_id")
             .help("set id; example: 91d0c771f4e98664bc980f48a90d535e means ISO")
             .long("set_id")
             .value_name("ID")
-            .takes_value(true))
-        .arg(Arg::with_name("text")
+            .takes_value(true)
+    }
+
+    fn arg_text<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("text")
             .help("text; example: \"A\"")
             .long("text")
             .value_name("TEXT")
-            .takes_value(true))
-        .arg(Arg::with_name("name")
-            .help("text; example: \"Agricultural\"")
+            .takes_value(true)
+    }
+
+    fn arg_subject_uri<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("name")
+            .help("name; example: \"Agricultural\"")
             .long("name")
             .value_name("TEXT")
-            .takes_value(true))
+            .takes_value(true)
+    }
+
+}
+
+impl crate::traits::clap_able::ClapAble for T {
+
+    fn init_clap_app<'a, 'ar>(app: App<'a, 'ar>) -> App<'a, 'ar> {
+        let app = app.arg(Self::arg_set_id());
+        let app = app.arg(Self::arg_text());
+        let app = app.arg(Self::arg_subject_uri());
+        app
     }
 
     fn from_clap_arg_matches(matches: &ArgMatches) -> T {

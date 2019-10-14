@@ -2,55 +2,87 @@ use clap::{App, Arg, ArgMatches};
 use crate::types;
 use crate::models::telephone_contact::telephone_contact::TelephoneContact as T;
 
-impl crate::traits::clap_able::ClapAble for T {
 
-    fn init_clap_app<'a, 'ar>(app: App<'a, 'ar>) -> App<'a, 'ar> {
-        app
-        .arg(Arg::with_name("label")
+impl T {
+    
+    fn arg_label<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("label")
             .help("label; example: \"mobile phone\"")
             .long("label")
             .value_name("TEXT")
-            .takes_value(true))
-        .arg(Arg::with_name("number_text")
+            .takes_value(true)
+    }
+
+    fn arg_number_text<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("number_text")
             .help("number text; example: \"1 (415) 555-0000\"")
             .long("number_text")
             .value_name("TEXT")
-            .takes_value(true))
-        .arg(Arg::with_name("e164")
+            .takes_value(true)
+    }
+
+    fn arg_e164<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("e164")
             .help("e164; example: \"14155550000\"")
             .long("e164")
             .value_name("TEXT")
-            .takes_value(true))
-        .arg(Arg::with_name("e164_country_code")
+            .takes_value(true)
+    }
+
+    fn arg_e164_country_code<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("e164_country_code")
             .help("e164 country code; example: \"1\" is United States")
             .long("e164_country_code")
             .value_name("NUMBER")
-            .takes_value(true))
-        .arg(Arg::with_name("e164_national_destination_code")
+            .takes_value(true)
+    }
+
+    fn arg_e164_national_destination_code<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("e164_national_destination_code")
             .help("e164 national destination code; example: \"415\" is San Francisco")
             .long("e164_national_destination_code")
             .value_name("NUMBER")
-            .takes_value(true))
-        .arg(Arg::with_name("e164_group_identification_code")
+            .takes_value(true)
+    }
+
+    fn arg_e164_group_identification_code<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("e164_group_identification_code")
             .help("e164 group identification code; example: TODO")
             .long("e164_group_identification_code")
             .value_name("NUMBER")
-            .takes_value(true))
-        .arg(Arg::with_name("e164_group_identification_code")
-            .help("e164 group identification code; example: TODO")
-            .long("e164_group_identification_code")
-            .value_name("NUMBER")
-            .takes_value(true))
-        .arg(Arg::with_name("e164_trial_identification_code")
+            .takes_value(true)
+    }
+
+    fn arg_e164_trial_identification_code<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("e164_trial_identification_code")
             .help("e164 trial identification code; example: TODO")
             .long("e164_trial_identification_code")
             .value_name("NUMBER")
-            .takes_value(true))
-        .arg(Arg::with_name("e164_subscriber_number")
+            .takes_value(true)
+    }
+
+    fn arg_e164_subscriber_number<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("e164_subscriber_number")
             .help("e164 subscriber number; example: \"555-0000\"")
             .long("e164_subscriber_number")
             .value_name("TEXT")
-            .takes_value(true))
+            .takes_value(true)
+    }
+
+}
+
+impl crate::traits::clap_able::ClapAble for T {
+
+    fn init_clap_app<'a, 'ar>(app: App<'a, 'ar>) -> App<'a, 'ar> {
+        let app = app.arg(Self::arg_label());
+        let app = app.arg(Self::arg_number_text());
+        let app = app.arg(Self::arg_e164());
+        let app = app.arg(Self::arg_e164_country_code());
+        let app = app.arg(Self::arg_e164_national_destination_code());
+        let app = app.arg(Self::arg_e164_group_identification_code());
+        let app = app.arg(Self::arg_e164_trial_identification_code());
+        let app = app.arg(Self::arg_e164_subscriber_number());
+        app
     }
 
     fn from_clap_arg_matches(matches: &ArgMatches) -> T {

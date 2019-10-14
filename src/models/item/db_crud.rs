@@ -1,13 +1,9 @@
 use diesel::prelude::*;
 use diesel::result::QueryResult;
 use crate::models::item::item::Item as T;
+use crate::schema::items::table as MyTable;
+use uuid::Uuid as MyId;
 
-impl crate::traits::db_crud::DBCrud<crate::schema::items::table, uuid::Uuid, T, T, T> for T {
-    db_crud!(
-        crate::schema::items::table,
-        uuid::Uuid,
-        crate::models::item::item::Item,
-        crate::models::item::item::Item,
-        crate::models::item::item::Item,
-    );
+impl crate::traits::db_crud::DBCrud<MyId, T, T, T> for T {
+    db_crud!(crate::db_connection, MyTable, MyId, T, T, T,);
 }

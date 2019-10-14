@@ -2,46 +2,79 @@ use clap::{App, Arg, ArgMatches};
 use crate::types;
 use crate::models::person_pronoun::person_pronoun::PersonPronoun as T;
 
-impl crate::traits::clap_able::ClapAble for T {
+impl T {
 
-    fn init_clap_app<'a, 'ar>(app: App<'a, 'ar>) -> App<'a, 'ar> {
-        app
-        .arg(Arg::with_name("subject pronoun")
+    fn arg_subject_pronoun<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("subject_pronoun")
             .help("subject pronoun; example: \"she\"")
             .long("subject_pronoun")
             .value_name("PRONOUN")
-            .takes_value(true))
-        .arg(Arg::with_name("object_pronoun")
+            .takes_value(true)
+    }
+
+    fn arg_object_pronoun<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("object_pronoun")
             .help("object pronoun; example: \"her\"")
             .long("object_pronoun")
             .value_name("PRONOUN")
-            .takes_value(true))
-        .arg(Arg::with_name("dependent_possessive_pronoun")
+            .takes_value(true)
+    }
+
+    fn arg_dependent_possessive_pronoun<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("dependent_possessive_pronoun")
             .help("dependent possessive pronoun; example: \"her\"")
             .long("dependent_possessive_pronoun")
             .value_name("PRONOUN")
-            .takes_value(true))
-        .arg(Arg::with_name("independent_possessive_pronoun")
+            .takes_value(true)
+    }
+
+    fn arg_independent_possessive_pronoun<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("independent_possessive_pronoun")
             .help("independent possessive pronoun; example: \"hers\"")
             .long("independent_possessive_pronoun")
             .value_name("PRONOUN")
-            .takes_value(true))
-        .arg(Arg::with_name("reflexive_pronoun")
+            .takes_value(true)
+    }
+
+    fn arg_reflexive_pronoun<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("reflexive_pronoun")
             .help("reflexive pronoun; example: \"herself\"")
             .long("reflexive_pronoun")
             .value_name("PRONOUN")
-            .takes_value(true))
-        .arg(Arg::with_name("intensive_pronoun")
+            .takes_value(true)
+    }
+
+    fn arg_intensive_pronoun<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("intensive_pronoun")
             .help("intensive pronoun; example: \"herself\"")
             .long("intensive_pronoun")
             .value_name("PRONOUN")
-            .takes_value(true))
-        .arg(Arg::with_name("disjunctive_pronoun")
+            .takes_value(true)
+    }
+
+    fn arg_disjunctive_pronoun<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("disjunctive_pronoun")
             .help("disjunctive pronoun; example: \"her\"")
             .long("disjunctive_pronoun")
             .value_name("PRONOUN")
-            .takes_value(true))
+            .takes_value(true)
     }
+
+}
+
+impl crate::traits::clap_able::ClapAble for T {
+
+    fn init_clap_app<'a, 'ar>(app: App<'a, 'ar>) -> App<'a, 'ar> {
+        let app = app.arg(Self::arg_subject_pronoun());
+        let app = app.arg(Self::arg_object_pronoun());
+        let app = app.arg(Self::arg_dependent_possessive_pronoun());
+        let app = app.arg(Self::arg_independent_possessive_pronoun());
+        let app = app.arg(Self::arg_reflexive_pronoun());
+        let app = app.arg(Self::arg_intensive_pronoun());
+        let app = app.arg(Self::arg_disjunctive_pronoun());
+        app
+    }
+
 
     fn from_clap_arg_matches(matches: &ArgMatches) -> T {
         T {

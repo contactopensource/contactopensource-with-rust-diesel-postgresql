@@ -2,35 +2,59 @@ use clap::{App, Arg, ArgMatches};
 use crate::types;
 use crate::models::media_type::media_type::MediaType as T;
 
-impl crate::traits::clap_able::ClapAble for T {
+impl T {
 
-    fn init_clap_app<'a, 'ar>(app: App<'a, 'ar>) -> App<'a, 'ar> {
-        app
-        .arg(Arg::with_name("text")
+    fn arg_text<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("text")
             .help("text; example: \"text/plain\"")
             .long("text")
             .value_name("TEXT")
-            .takes_value(true))
-        .arg(Arg::with_name("supertype")
+            .takes_value(true)
+    }
+
+    fn arg_supertype<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("supertype")
             .help("supertype; example: \"text\"")
             .long("supertype")
             .value_name("TEXT")
-            .takes_value(true))
-        .arg(Arg::with_name("tree")
+            .takes_value(true)
+    }
+
+    fn arg_tree<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("tree")
             .help("tree; example: \"x.\"")
             .long("tree")
             .value_name("TEXT")
-            .takes_value(true))
-        .arg(Arg::with_name("subtype")
+            .takes_value(true)
+    }
+
+    fn arg_subtype<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("subtype")
             .help("subtype; example: \"plain\"")
             .long("subtype")
             .value_name("TEXT")
-            .takes_value(true))
-        .arg(Arg::with_name("suffix")
+            .takes_value(true)
+    }
+
+    fn arg_suffix<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("suffix")
             .help("tree; example: \"+json\"")
             .long("suffix")
             .value_name("TEXT")
-            .takes_value(true))
+            .takes_value(true)
+    }
+
+}
+
+impl crate::traits::clap_able::ClapAble for T {
+
+    fn init_clap_app<'a, 'ar>(app: App<'a, 'ar>) -> App<'a, 'ar> {
+        let app = app.arg(Self::arg_text());
+        let app = app.arg(Self::arg_supertype());
+        let app = app.arg(Self::arg_tree());
+        let app = app.arg(Self::arg_subtype());
+        let app = app.arg(Self::arg_suffix());
+        app
     }
 
     fn from_clap_arg_matches(matches: &ArgMatches) -> T {

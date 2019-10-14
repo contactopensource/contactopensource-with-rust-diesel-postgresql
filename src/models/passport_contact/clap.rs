@@ -2,32 +2,52 @@ use clap::{App, Arg, ArgMatches};
 use crate::types;
 use crate::models::passport_contact::passport_contact::PassportContact as T;
 
-impl crate::traits::clap_able::ClapAble for T {
+impl T {
 
-    fn init_clap_app<'a, 'ar>(app: App<'a, 'ar>) -> App<'a, 'ar> {
-        app
-        .arg(Arg::with_name("country")
+    fn arg_country<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("country")
             .help("country text; example: \"US\" is United States")
             .long("country")
             .value_name("TEXT")
-            .takes_value(true))
-        .arg(Arg::with_name("number")
+            .takes_value(true)
+    }
+
+    fn arg_number<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("number")
             .help("number text; example: \"0000-0000-0000-0000\"")
             .long("number")
             .value_name("TEXT")
-            .takes_value(true))
-        .arg(Arg::with_name("start_date")
+            .takes_value(true)
+    }
+
+    fn arg_start_date<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("start_date")
             .help("start date; example: \"2020-01-01\"")
             .long("start_date")
             .value_name("DATE")
-            .takes_value(true))
-        .arg(Arg::with_name("stop_date")
+            .takes_value(true)
+    }
+
+    fn arg_stop_date<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("stop_date")
             .help("stop date; example: \"2030-01-01\"")
             .long("stop_date")
             .value_name("DATE")
-            .takes_value(true))
+            .takes_value(true)
     }
 
+}
+
+impl crate::traits::clap_able::ClapAble for T {
+
+    fn init_clap_app<'a, 'ar>(app: App<'a, 'ar>) -> App<'a, 'ar> {
+        let app = app.arg(Self::arg_country());
+        let app = app.arg(Self::arg_number());
+        let app = app.arg(Self::arg_start_date());
+        let app = app.arg(Self::arg_stop_date());
+        app
+    }
+    
     fn from_clap_arg_matches(matches: &ArgMatches) -> T {
         T {
             id: types::id::from_option_str(matches.value_of("id")).unwrap(),

@@ -2,16 +2,23 @@ use clap::{App, Arg, ArgMatches};
 use crate::types;
 use crate::models::place::place::Place as T;
 
+impl T {
+
+    fn arg_name<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("name")
+            .help("name; example: \"Lunchroom\"")
+            .long("name")
+            .value_name("NAME")
+            .takes_value(true)
+    }
+
+}
+
 impl crate::traits::clap_able::ClapAble for T {
 
     fn init_clap_app<'a, 'ar>(app: App<'a, 'ar>) -> App<'a, 'ar> {
+        let app = app.arg(Self::arg_name());
         app
-        // Name-related
-        .arg(Arg::with_name("name")
-            .help("name; example: \"Lunch\"")
-            .long("name")
-            .value_name("NAME")
-            .takes_value(true))
     }
 
     fn from_clap_arg_matches(matches: &ArgMatches) -> T {

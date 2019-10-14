@@ -2,32 +2,51 @@ use clap::{App, Arg, ArgMatches};
 use crate::types;
 use crate::models::thing::thing::Thing as T;
 
-impl crate::traits::clap_able::ClapAble for T {
+impl T {
 
-    fn init_clap_app<'a, 'ar>(app: App<'a, 'ar>) -> App<'a, 'ar> {
-        app
-        // Name-related
-        .arg(Arg::with_name("name")
+
+    fn arg_name<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("name")
             .help("name; example: \"book\"")
             .long("name")
             .value_name("NAME")
-            .takes_value(true))
-        // Lifetime-related
-        .arg(Arg::with_name("start_timestamp_utc")
+            .takes_value(true)
+    }
+
+    fn arg_start_timestamp_utc<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("start_timestamp_utc")
             .help("start_timestamp_utc; example: \"2021-01-01T00:00:00Z\"")
             .long("start_timestamp_utc")
             .value_name("TIMESTAMP")
-            .takes_value(true))
-        .arg(Arg::with_name("stop_timestamp_utc")
+            .takes_value(true)
+    }
+
+    fn arg_stop_timestamp_utc<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("stop_timestamp_utc")
             .help("stop_timestamp_utc; example: \"2021-01-01T00:00:00Z\"")
             .long("stop_timestamp_utc")
             .value_name("TIMESTAMP")
-            .takes_value(true))
-        .arg(Arg::with_name("duration_as_seconds")
+            .takes_value(true)
+    }
+
+    fn arg_duration_as_seconds<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("duration_as_seconds")
             .help("duration_as_seconds; example: 3600 seconds is 1 hour")
             .long("duration_as_seconds")
             .value_name("SECONDS")
-            .takes_value(true))
+            .takes_value(true)
+    }
+
+}
+
+impl crate::traits::clap_able::ClapAble for T {
+
+    fn init_clap_app<'a, 'ar>(app: App<'a, 'ar>) -> App<'a, 'ar> {
+        let app = app.arg(Self::arg_name());
+        let app = app.arg(Self::arg_start_timestamp_utc());
+        let app = app.arg(Self::arg_stop_timestamp_utc());
+        let app = app.arg(Self::arg_duration_as_seconds());
+        app
     }
 
     fn from_clap_arg_matches(matches: &ArgMatches) -> T {

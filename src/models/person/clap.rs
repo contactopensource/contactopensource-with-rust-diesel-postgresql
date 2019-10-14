@@ -2,49 +2,78 @@ use clap::{App, Arg, ArgMatches};
 use crate::types;
 use crate::models::person::person::Person as T;
 
-impl crate::traits::clap_able::ClapAble for T {
+impl T {
 
-    fn init_clap_app<'a, 'ar>(app: App<'a, 'ar>) -> App<'a, 'ar> {
-        app
-        // Name-related
-        // Lifetime-related
-        .arg(Arg::with_name("birth_date")
+
+    fn arg_birth_date<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("birth_date")
             .help("birth date; example: \"2000-01-01\"")
             .long("birth_date")
             .value_name("DATE")
-            .takes_value(true))
-        .arg(Arg::with_name("death_date")
+            .takes_value(true)
+    }
+
+    fn arg_death_date<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("death_date")
             .help("death date; example: \"2099-01-01\"")
             .long("death_date")
             .value_name("DATE")
-            .takes_value(true))
-        // Physical-related
-        .arg(Arg::with_name("mass_as_grams")
+            .takes_value(true)
+    }
+
+    fn arg_mass_as_grams<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("mass_as_grams")
             .help("contact mass as grams; example: 70000")
             .long("mass_as_grams")
             .value_name("GRAMS")
-            .takes_value(true))
-        .arg(Arg::with_name("height_as_meters")
+            .takes_value(true)
+    }
+
+    fn arg_height_as_meters<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("height_as_meters")
             .help("contact height as meters; example: 170")
             .long("height_as_meters")
             .value_name("METERS")
-            .takes_value(true))
-        // Org-related
-        .arg(Arg::with_name("org_name")
+            .takes_value(true)
+    }
+
+    fn arg_org_name<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("org_name")
             .help("org name; example: \"Acme Company\"")
             .long("org_name")
             .value_name("NAME")
-            .takes_value(true))
-        .arg(Arg::with_name("org_team; example: \"Department of Widgets\"")
-            .help("org team")
+            .takes_value(true)
+    }
+
+    fn arg_org_team<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("org_team")
+            .help("org team; example: \"Department of Widgets\"")
             .long("org_team")
             .value_name("NAME")
-            .takes_value(true))
-        .arg(Arg::with_name("org_role; example: \"Manager of Widgets\"")
-            .help("org role")
+            .takes_value(true)
+    }
+
+    fn arg_org_role<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("org_role")
+            .help("org role; example: \"Manager of Widgets\"")
             .long("org_role")
             .value_name("NAME")
-            .takes_value(true))
+            .takes_value(true)
+    }
+
+}
+
+impl crate::traits::clap_able::ClapAble for T {
+
+    fn init_clap_app<'a, 'ar>(app: App<'a, 'ar>) -> App<'a, 'ar> {
+        let app = app.arg(Self::arg_birth_date());
+        let app = app.arg(Self::arg_death_date());
+        let app = app.arg(Self::arg_mass_as_grams());
+        let app = app.arg(Self::arg_height_as_meters());
+        let app = app.arg(Self::arg_org_name());
+        let app = app.arg(Self::arg_org_team());
+        let app = app.arg(Self::arg_org_role());
+        app
     }
 
     fn from_clap_arg_matches(matches: &ArgMatches) -> T {

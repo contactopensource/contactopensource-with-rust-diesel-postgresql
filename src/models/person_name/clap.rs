@@ -2,100 +2,177 @@ use clap::{App, Arg, ArgMatches};
 use crate::types;
 use crate::models::person_name::person_name::PersonName as T;
 
-impl crate::traits::clap_able::ClapAble for T {
+impl T {
 
-    fn init_clap_app<'a, 'ar>(app: App<'a, 'ar>) -> App<'a, 'ar> {
-        app
-        .arg(Arg::with_name("given_name")
+
+    fn arg_given_name<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("given_name")
             .help("given name; example: \"Alice\"")
             .long("given_name")
             .value_name("NAME")
-            .takes_value(true))
-        .arg(Arg::with_name("given_name_phonetic")
+            .takes_value(true)
+    }
+
+    fn arg_given_name_phonetic<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("given_name_phonetic")
             .help("given name phonetic; example: \"Alice\"")
             .long("given_name_phonetic")
             .value_name("NAME")
-            .takes_value(true))
-        .arg(Arg::with_name("middle_name")
+            .takes_value(true)
+    }
+
+    fn arg_middle_name<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("middle_name")
             .help("middle name; example: \"Amy\"")
             .long("middle_name")
             .value_name("NAME")
-            .takes_value(true))
-        .arg(Arg::with_name("middle_name_phonetic")
+            .takes_value(true)
+    }
+
+    fn arg_middle_name_phonetic<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("middle_name_phonetic")
             .help("middle name phonetic; example: \"Amy\"")
             .long("middle_name_phonetic")
             .value_name("NAME")
-            .takes_value(true))
-        .arg(Arg::with_name("family_name")
+            .takes_value(true)
+    }
+
+    fn arg_family_name<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("family_name")
             .help("family name; example: \"Adams\"")
             .long("family_name")
             .value_name("NAME")
-            .takes_value(true))
-        .arg(Arg::with_name("family_name_phonetic")
+            .takes_value(true)
+    }
+
+    fn arg_family_name_phonetic<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("family_name_phonetic")
             .help("family name phonetic; example: \"Adams\"")
             .long("family_name_phonetic")
             .value_name("NAME")
-            .takes_value(true))
-        .arg(Arg::with_name("legal_name")
+            .takes_value(true)
+    }
+
+    fn arg_legal_name<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("legal_name")
             .help("legal name; example: \"Alice Amy Adams\"")
             .long("legal_name")
             .value_name("NAME")
-            .takes_value(true))
-        .arg(Arg::with_name("legal_name_phonetic")
+            .takes_value(true)
+    }
+
+    fn arg_legal_name_phonetic<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("legal_name_phonetic")
             .help("legal name; example: \"Alice Amy Adams\"")
             .long("legal_name_phonetic")
             .value_name("NAME")
-            .takes_value(true))
-        .arg(Arg::with_name("prefix_name")
+            .takes_value(true)
+    }
+
+    fn arg_prefix_name<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("prefix_name")
             .help("prefix name; example: \"Dr.\"")
             .long("prefix_name")
             .value_name("NAME")
-            .takes_value(true))
-        .arg(Arg::with_name("prefix_name_phonetic")
+            .takes_value(true)
+    }
+
+    fn arg_prefix_name_phonetic<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("prefix_name_phonetic")
             .help("prefix name phonetic; example: \"Dr.\"")
             .long("prefix_name_phonetic")
             .value_name("NAME")
-            .takes_value(true))
-        .arg(Arg::with_name("suffix_name")
+            .takes_value(true)
+    }
+
+    fn arg_suffix_name<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("suffix_name")
             .help("suffix name; example: \"Jr.\"")
             .long("suffix_name")
             .value_name("NAME")
-            .takes_value(true))
-        .arg(Arg::with_name("suffix_name_phonetic")
+            .takes_value(true)
+    }
+
+    fn arg_suffix_name_phonetic<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("suffix_name_phonetic")
             .help("suffix name phonetic; example: \"Jr.\"")
             .long("suffix_name_phonetic")
             .value_name("NAME")
-            .takes_value(true))
-        .arg(Arg::with_name("salutation")
+            .takes_value(true)
+    }
+
+    fn arg_salutation<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("salutation")
             .help("salutation; example: \"Dr. Adams\"")
             .long("salutation")
             .value_name("TEXT")
-            .takes_value(true))
-        .arg(Arg::with_name("salutation_phonetic")
+            .takes_value(true)
+    }
+
+    fn arg_salutation_phonetic<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("salutation_phonetic")
             .help("salutation phonetic; example: \"Dr. Adams\"")
             .long("salutation_phonetic")
             .value_name("TEXT")
-            .takes_value(true))
-        .arg(Arg::with_name("addressee")
+            .takes_value(true)
+    }
+
+    fn arg_addressee<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("addressee")
             .help("addressee; example: \"Dr. Alice Adams Jr.\"")
             .long("addressee")
             .value_name("true")
-            .takes_value(true))
-        .arg(Arg::with_name("addressee_phonetic")
+            .takes_value(true)
+    }
+
+    fn arg_addressee_phonetic<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("addressee_phonetic")
             .help("addressee phonetic; example: \"Dr. Alice Adams Jr.\"")
             .long("addressee_phonetic")
             .value_name("true")
-            .takes_value(true))
-        .arg(Arg::with_name("nickname")
+            .takes_value(true)
+    }
+
+    fn arg_nickname<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("nickname")
             .help("nickname; example: \"Ali\"")
             .long("nickname")
             .value_name("NAME")
-            .takes_value(true))
-        .arg(Arg::with_name("nickname_phonetic")
+            .takes_value(true)
+    }
+
+    fn arg_nickname_phonetic<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("nickname_phonetic")
             .help("nickname phonetic; example: \"Ali\"")
             .long("nickname_phonetic")
             .value_name("NAME")
-            .takes_value(true))
+            .takes_value(true)
+    }
+
+}
+
+impl crate::traits::clap_able::ClapAble for T {
+
+    fn init_clap_app<'a, 'ar>(app: App<'a, 'ar>) -> App<'a, 'ar> {
+        let app = app.arg(Self::arg_given_name());
+        let app = app.arg(Self::arg_given_name_phonetic());
+        let app = app.arg(Self::arg_middle_name());
+        let app = app.arg(Self::arg_middle_name_phonetic());
+        let app = app.arg(Self::arg_family_name());
+        let app = app.arg(Self::arg_family_name_phonetic());
+        let app = app.arg(Self::arg_legal_name());
+        let app = app.arg(Self::arg_legal_name_phonetic());
+        let app = app.arg(Self::arg_prefix_name());
+        let app = app.arg(Self::arg_prefix_name_phonetic());
+        let app = app.arg(Self::arg_suffix_name());
+        let app = app.arg(Self::arg_suffix_name_phonetic());
+        let app = app.arg(Self::arg_salutation());
+        let app = app.arg(Self::arg_salutation_phonetic());
+        let app = app.arg(Self::arg_addressee());
+        let app = app.arg(Self::arg_addressee_phonetic());
+        let app = app.arg(Self::arg_nickname());
+        let app = app.arg(Self::arg_nickname_phonetic());
+        app
     }
 
     fn from_clap_arg_matches(matches: &ArgMatches) -> T {

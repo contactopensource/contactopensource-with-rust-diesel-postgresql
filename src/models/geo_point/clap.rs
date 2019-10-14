@@ -2,36 +2,61 @@ use clap::{App, Arg, ArgMatches};
 use crate::types;
 use crate::models::geo_point::geo_point::GeoPoint as T;
 
-impl crate::traits::clap_able::ClapAble for T {
+impl T {
 
-    fn init_clap_app<'a, 'ar>(app: App<'a, 'ar>) -> App<'a, 'ar> {
-        app
-        .arg(Arg::with_name("latitude")
+    fn arg_latitude<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("latitude")
             .help("latitude; example: '37.8199' is 37.8199° N at the Golden Gate Bridge")
             .long("latitude")
             .value_name("NUMBER")
-            .takes_value(true))
-        .arg(Arg::with_name("longitude")
+            .takes_value(true)
+    }
+
+    fn arg_longitude<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("longitude")
             .help("longitude; example: '122.4783' is 122.4783° W at the Golden Gate Bridge")
             .long("longitude")
             .value_name("NUMBER")
-            .takes_value(true))
-        .arg(Arg::with_name("altitude")
+            .takes_value(true)
+    }
+
+    fn arg_altitude<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("altitude")
             .help("altitude; example: '67.056' is 67.056 meters to local surface of the earth")
             .long("altitude")
             .value_name("NUMBER")
-            .takes_value(true))
-        .arg(Arg::with_name("elevation")
+            .takes_value(true)
+    }
+
+    fn arg_elevation<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("elevation")
             .help("elevation; example: '67.056' is 67.056 meters to global sea level")
             .long("elevation")
             .value_name("NUMBER")
-            .takes_value(true))
-        .arg(Arg::with_name("global_location_number")
+            .takes_value(true)
+    }
+
+    fn arg_global_location_number<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("global_location_number")
             .help("contact global location number; see: https://schema.org/globalLocationNumber https://en.wikipedia.org/wiki/Global_Location_Number")
             .long("global_location_number")
             .value_name("TEXT")
-            .takes_value(true))
+            .takes_value(true)
     }
+
+}
+
+impl crate::traits::clap_able::ClapAble for T {
+
+    fn init_clap_app<'a, 'ar>(app: App<'a, 'ar>) -> App<'a, 'ar> {
+        let app = app.arg(Self::arg_latitude());
+        let app = app.arg(Self::arg_longitude());
+        let app = app.arg(Self::arg_altitude());
+        let app = app.arg(Self::arg_elevation());
+        let app = app.arg(Self::arg_global_location_number());
+        app
+    }
+
 
     fn from_clap_arg_matches(matches: &ArgMatches) -> T {
         T {

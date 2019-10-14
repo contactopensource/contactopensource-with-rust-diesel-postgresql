@@ -2,45 +2,77 @@ use clap::{App, Arg, ArgMatches};
 use crate::types;
 use crate::models::contact::contact::Contact as T;
 
-impl crate::traits::clap_able::ClapAble for T {
+impl T {
 
-    fn init_clap_app<'a, 'ar>(app: App<'a, 'ar>) -> App<'a, 'ar> {
-        app
-        .arg(Arg::with_name("name")
+    fn arg_name<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("name")
             .help("name; typically freeform full name; example: \"Alice Adams\"")
             .long("name")
             .value_name("TEXT")
-            .takes_value(true))
-        .arg(Arg::with_name("emoji")
+            .takes_value(true)
+    }
+
+    fn arg_emoji<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("emoji")
             .help("emoji; typically emoji characters; example \"U+1F60A\" is smiling face with smiling eyes")
             .long("emoji")
             .value_name("TEXT")
-            .takes_value(true))
-        .arg(Arg::with_name("note")
+            .takes_value(true)
+    }
+
+    fn arg_note<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("note")
             .help("note, typically freeform; example: \"Alice is a good friend, nearby neighbor, and fast runner\"")
             .long("note")
             .value_name("TEXT")
-            .takes_value(true))
-        .arg(Arg::with_name("image_uri")
+            .takes_value(true)
+    }
+
+    fn arg_image_uri<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("image_uri")
             .help("image URI; example: \"https://example.com/image.jpg\"")
             .long("image_uri")
             .value_name("URI")
-            .takes_value(true))
-        .arg(Arg::with_name("color_hex")
+            .takes_value(true)
+    }
+
+    fn arg_color_hex<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("color_hex")
             .help("color hex six digit code; example: \"FF0000\" is red")
             .long("HEX")
             .value_name("color_hex")
-            .takes_value(true))
-        .arg(Arg::with_name("css_class")
+            .takes_value(true)
+    }
+
+    fn arg_css_class<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("css_class")
             .help("CSS class, as a space-separated list; example: \"friend neighbor runner\" is a cascading style sheet class")
             .long("CLASS")
             .value_name("css_class")
-            .takes_value(true))
-        .arg(Arg::with_name("star_count")
+            .takes_value(true)
+    }
+
+    fn arg_star_count<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("star_count")
             .help("star count; example: '5' means 5-star rating")
             .long("INT")
             .value_name("star_count")
-            .takes_value(true))
+            .takes_value(true)
+    }
+
+}
+
+impl crate::traits::clap_able::ClapAble for T {
+
+    fn init_clap_app<'a, 'ar>(app: App<'a, 'ar>) -> App<'a, 'ar> {
+        let app = app.arg(Self::arg_name());
+        let app = app.arg(Self::arg_emoji());
+        let app = app.arg(Self::arg_note());
+        let app = app.arg(Self::arg_image_uri());
+        let app = app.arg(Self::arg_color_hex());
+        let app = app.arg(Self::arg_css_class());
+        let app = app.arg(Self::arg_star_count());
+        app
     }
 
     fn from_clap_arg_matches(matches: &ArgMatches) -> T {

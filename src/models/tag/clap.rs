@@ -2,15 +2,23 @@ use clap::{App, Arg, ArgMatches};
 use crate::types;
 use crate::models::tag::tag::Tag as T;
 
-impl crate::traits::clap_able::ClapAble for T {
+impl T {
 
-    fn init_clap_app<'a, 'ar>(app: App<'a, 'ar>) -> App<'a, 'ar> {
-        app
-        .arg(Arg::with_name("text")
+    fn arg_text<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("text")
             .help("text; example: \"trending\"")
             .long("text")
             .value_name("TEXT")
-            .takes_value(true))
+            .takes_value(true)
+    }
+
+}
+
+impl crate::traits::clap_able::ClapAble for T {
+
+    fn init_clap_app<'a, 'ar>(app: App<'a, 'ar>) -> App<'a, 'ar> {
+        let app = app.arg(Self::arg_text());
+        app
     }
 
     fn from_clap_arg_matches(matches: &ArgMatches) -> T {

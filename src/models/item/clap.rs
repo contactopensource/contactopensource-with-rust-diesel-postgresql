@@ -2,36 +2,61 @@ use clap::{App, Arg, ArgMatches};
 use crate::types;
 use crate::models::item::item::Item as T;
 
-impl crate::traits::clap_able::ClapAble for T {
+impl T {
 
-    fn init_clap_app<'a, 'ar>(app: App<'a, 'ar>) -> App<'a, 'ar> {
-        app
-        .arg(Arg::with_name("uri")
+    fn arg_uri<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("uri")
             .help("URI; example: \"https://example.com/example.txt\"")
             .long("uri")
             .value_name("URI")
-            .takes_value(true))
-        .arg(Arg::with_name("text")
+            .takes_value(true)
+    }
+
+    fn arg_text<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("text")
             .help("text; example: \"hello world\"")
             .long("text")
             .value_name("TEXT")
-            .takes_value(true))
-        .arg(Arg::with_name("json")
+            .takes_value(true)
+    }
+
+    fn arg_json<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("json")
             .help("JSON; example: \"{\"hello\":\"world\"}")
             .long("json")
             .value_name("JSON")
-            .takes_value(true))
-        .arg(Arg::with_name("xml")
+            .takes_value(true)
+    }
+
+    fn arg_xml<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("xml")
             .help("XML; example: \"<?xml version=\"1.0\"?><example>hello world</example>")
             .long("xml")
             .value_name("XML")
-            .takes_value(true))
-        .arg(Arg::with_name("number")
+            .takes_value(true)
+    }
+
+    fn arg_number<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("number")
             .help("number; example: 1234.5678")
             .long("number")
             .value_name("NUMBER")
-            .takes_value(true))
+            .takes_value(true)
     }
+
+}
+
+impl crate::traits::clap_able::ClapAble for T {
+
+    fn init_clap_app<'a, 'ar>(app: App<'a, 'ar>) -> App<'a, 'ar> {
+        let app = app.arg(Self::arg_uri());
+        let app = app.arg(Self::arg_text());
+        let app = app.arg(Self::arg_json());
+        let app = app.arg(Self::arg_xml());
+        let app = app.arg(Self::arg_number());
+        app
+    }
+    
 
     fn from_clap_arg_matches(matches: &ArgMatches) -> T {
         T {

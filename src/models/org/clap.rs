@@ -2,21 +2,34 @@ use clap::{App, Arg, ArgMatches};
 use crate::types;
 use crate::models::org::org::Org as T;
 
+impl T {
+
+    fn arg_start_date<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("start_at_timestamp_utc")
+            .help("start at timestamp; example: \"2021-01-01\"")
+            .long("start_date")
+            .value_name("DATE")
+            .takes_value(true)
+    }
+
+    fn arg_stop_date<'a, 'b>() -> Arg<'a, 'b> {
+        Arg::with_name("stop_date")
+            .help("stop at date; example: \"2021-01-01\"")
+            .long("stop_date")
+            .value_name("DATE")
+            .takes_value(true)
+    }
+
+}
+
 impl crate::traits::clap_able::ClapAble for T {
 
     fn init_clap_app<'a, 'ar>(app: App<'a, 'ar>) -> App<'a, 'ar> {
+        let app = app.arg(Self::arg_start_date());
+        let app = app.arg(Self::arg_stop_date());
         app
-        .arg(Arg::with_name("start_at_timestamp_utc")
-            .help("start at timestamp; example: \"2021-01-01T00:00:00Z\"")
-            .long("start_at_timestamp_utc")
-            .value_name("TIMESTAMP")
-            .takes_value(true))
-        .arg(Arg::with_name("stop_at_timestamp_utc")
-            .help("stop at timestamp; example: \"2021-01-01T00:00:00Z\"")
-            .long("stop_at_timestamp_utc")
-            .value_name("TIMESTAMP")
-            .takes_value(true))
     }
+
 
     fn from_clap_arg_matches(matches: &ArgMatches) -> T {
         T {
