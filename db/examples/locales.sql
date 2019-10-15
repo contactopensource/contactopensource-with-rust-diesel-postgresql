@@ -1,4 +1,4 @@
-INSERT INTO locales VALUES
+INSERT INTO locales VALUES 
 
 -- Example: English language + United States
 (

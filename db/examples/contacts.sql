@@ -1,4 +1,4 @@
-INSERT INTO contacts VALUES
+INSERT INTO contacts VALUES 
 
 -- Example: Acme Agency
 (

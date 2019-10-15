@@ -6,6 +6,12 @@ edition = "2018"
 
 [dependencies]
 
+# Version must match the diesel dependency version.
+# To find the diesel dependency version, one way is to build our app,
+# then search the file `Cargo.lock` for the diesel crate entry.
+# Features must include serde, to be able to handle bigdecimal.
+bigdecimal = { version = "= 0.1.0", features = ["serde"] }
+
 dotenv = "0.9.0"
 
 # Chrono: Date and Time for Rust
@@ -29,13 +35,13 @@ clap = {version = "2.33", features = ["yaml"]}
 #   * serde_json: for JSON data types
 #   * uuid: for UUID data types
 #
-diesel = { version = "1.4.2", features = ["64-column-tables", "chrono", "network-address", "numeric", "postgres", "sqlite", "r2d2", "serde_json", "url", "uuid", "uuidv07"] }
+# If the diesel version number changes, be sure to verify that
+# any dependency versions are correct. The crate `bigdecimal`
+# version number must match the diesel `bigdecimal` version.
+#
+diesel = { version = "1.4.3", features = ["64-column-tables", "chrono", "network-address", "numeric", "postgres", "sqlite", "r2d2", "serde_json", "url", "uuid", "uuidv07"] }
 
 diesel-dynamic-schema = { git = "https://github.com/diesel-rs/diesel-dynamic-schema" }
-
-# Version must match the diesel dependency version.
-# Features must include serde, to be able to handle bigdecimal.
-bigdecimal = { version = "= 0.0.14", features = ["serde"] }
 
 # itertools: Iteration tools, such as iterator adaptors, functions, and macros.
 itertools = "0.8"
@@ -82,6 +88,9 @@ serde_derive = "1.0.91"
 # Each data format lives in its own crate; the sample code below uses JSON and XML
 serde_json = { version = "1.0.39", features = ["arbitrary_precision"] }
 serde-xml-rs = "0.3.1"
+
+# phf: generate efficient lookup tables at compile time using perfect hash functions.
+phf = { version = "0.7.24", features = ["macros"] }
 
 # Rand: A Rust library for random number generation.
 rand = "0.6.5"

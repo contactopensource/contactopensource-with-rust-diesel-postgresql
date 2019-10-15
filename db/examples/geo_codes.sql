@@ -14,7 +14,7 @@
 --
 --   * San Francisco Ferry Building
 --
-INSERT INTO codes VALUES
+INSERT INTO codes VALUES 
 
 -- Example: New York, Grand Central, Open Location Code
 (

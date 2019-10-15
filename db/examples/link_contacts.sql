@@ -1,4 +1,4 @@
-INSERT INTO link_contacts VALUES
+INSERT INTO link_contacts VALUES 
 
 -- Example: New York + Grand Central + Wikipedia link
 (

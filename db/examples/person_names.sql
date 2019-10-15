@@ -1,4 +1,4 @@
-INSERT INTO person_names VALUES
+INSERT INTO person_names VALUES 
 
 -- Example: Dr. Alice Amy Adams Jr.
 (
@@ -29,7 +29,7 @@ INSERT INTO person_names VALUES
   'Dr. Alice Adams Jr.', -- addressee_name_phonetic
   'Ali', -- nickname
   'Ali' -- nickname_phonetic
-),
+), 
 
 -- Example: Hon. Bob Brian Brown Sr.
 (

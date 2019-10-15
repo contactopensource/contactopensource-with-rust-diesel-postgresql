@@ -1,4 +1,4 @@
-INSERT INTO persons VALUES
+INSERT INTO persons VALUES 
 
 -- Example: Alice
 (

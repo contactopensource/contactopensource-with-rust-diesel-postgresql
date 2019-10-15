@@ -1,4 +1,4 @@
-INSERT INTO things VALUES
+INSERT INTO things VALUES 
 
 -- Example: a train (such as for examples with New York Grand Central)
 (

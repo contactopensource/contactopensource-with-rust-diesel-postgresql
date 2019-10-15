@@ -1,4 +1,4 @@
-INSERT INTO postal_contacts VALUES
+INSERT INTO postal_contacts VALUES 
 
 -- Example: New York + Grand Central
 (

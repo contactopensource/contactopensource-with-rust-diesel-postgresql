@@ -16,7 +16,7 @@
 --   * subject_uri: http://example.com/alice-adams.html
 --
 --   * object_uri: http://example.com/bob-brown.html
---
+-- 
 -- For example, link from a person's information in this database schema
 -- to an organization's information in this database schema:
 --
@@ -36,14 +36,14 @@
 --
 --    * object_uri: http://example.com/bob-brown.html
 --
--- Each arc row must have a subject and object.
+-- Each arc row must have a subject and object. 
 --
 -- Each arc row may have a predicate, which is a way to describe the type
 -- of relationship. Common examples we use are "like", "follow", "favorite".
 --
 -- This table has a goal to be fully workable with RDF concepts.
 --
--- If possible, this table will be improved to use a better way of
+-- If possible, this table will be improved to use a better way of 
 -- linking to internal data. For example, we would prefer to phase out
 -- the individual fields for table name and row id, and instead simply
 -- use the URI fields along with a URI that points to internal data.

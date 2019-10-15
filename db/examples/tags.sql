@@ -1,4 +1,4 @@
-INSERT INTO tags VALUES
+INSERT INTO tags VALUES 
 
 -- Example: tag for New York
 (

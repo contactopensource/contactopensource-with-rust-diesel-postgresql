@@ -1,4 +1,4 @@
-INSERT INTO media_types VALUES
+INSERT INTO media_types VALUES 
 
 -- Example: text/plain + ASCII
 (

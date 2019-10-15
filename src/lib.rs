@@ -9,8 +9,7 @@ pub use ::chrono;
 //use ::chrono::Duration;
 
 // diesel: database ORM
-#[macro_use]
-extern crate diesel;
+#[macro_use] extern crate diesel;
 use ::diesel::{prelude::*, pg::PgConnection};
 
 // dotenv: environment variables
@@ -28,6 +27,12 @@ extern crate lazy_static;
 
 // Num is for numbers, including BigInt, and features for rand and Serde.
 extern crate num;
+
+// phf: generate efficient lookup tables at compile time using perfect hash functions.
+//use phf::phf_map;
+
+// maplit: Rust macros for HashMap, HashSet, BTreeMap, BTreeSet.
+#[macro_use] extern crate maplit;
 
 //use r2d2;
 
@@ -53,6 +58,13 @@ pub use ::uuid::Uuid;
 pub mod macros {
     #[macro_use] 
     pub mod db_crud;
+}
+
+pub mod enums {
+    pub mod action_enum;
+    pub mod model_enum;
+    pub mod table_enum;
+    pub mod output_format_enum;
 }
 
 pub mod schema;

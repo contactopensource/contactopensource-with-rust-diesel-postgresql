@@ -1,4 +1,4 @@
-INSERT INTO items VALUES
+INSERT INTO items VALUES 
 
 -- Example: Alice
 (
@@ -36,6 +36,7 @@ INSERT INTO items VALUES
   -- Content-related - the intent is to offer a variety of database types.
   'Bob', -- text
   '{"item": "Bob"}', -- json
-  '<?xml version="1.0"?><item>Bob</item>' -- xml
+  '<?xml version="1.0"?><item>Bob</item>', -- xml
+  1234.5678 -- number
 
 );

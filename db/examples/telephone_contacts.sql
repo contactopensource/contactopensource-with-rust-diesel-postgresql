@@ -1,4 +1,4 @@
-INSERT INTO telephone_contacts VALUES
+INSERT INTO telephone_contacts VALUES 
 
 -- Example: New York + Grand Central + telephone for Master's Office
 (

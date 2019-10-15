@@ -1,4 +1,4 @@
-INSERT INTO places VALUES
+INSERT INTO places VALUES 
 
 -- New York + Grand Central
 (

@@ -1,4 +1,4 @@
-INSERT INTO orgs VALUES
+INSERT INTO orgs VALUES 
 
 -- Example: Acme Agency
 (

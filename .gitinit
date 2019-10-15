@@ -14,6 +14,15 @@ add_starters(){
 
 }
 
+add_enums(){
+  git a src/traits/00_README.md ; git cm "Add enums directory"
+  for x in $(ls -1 src/traits/*.rs | grep -v "/mod.rs$") ; do
+    x=$(basename ${x%%.rs})
+    message=${x//_/ }
+    git a src/traits/${x}.rs ; git cm "Add enum $message"
+  done
+}
+
 add_traits(){
   git a src/traits/00_README.md ; git cm "Add traits directory"
   for x in $(ls -1 src/traits/*.rs | grep -v "/mod.rs$") ; do
@@ -88,6 +97,7 @@ add_remainders(){
 ## Main
 
 add_starters
+add_enums
 add_traits
 add_types
 add_concepts

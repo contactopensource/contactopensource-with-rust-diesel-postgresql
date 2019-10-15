@@ -1,4 +1,4 @@
-INSERT INTO email_contacts VALUES
+INSERT INTO email_contacts VALUES 
 
 -- Example: Alice Adams <alice@example.com>
 (

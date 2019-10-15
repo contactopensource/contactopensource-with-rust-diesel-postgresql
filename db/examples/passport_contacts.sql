@@ -1,4 +1,4 @@
-INSERT INTO passport_contacts VALUES
+INSERT INTO passport_contacts VALUES 
 
 -- Example: Alice's passport
 (

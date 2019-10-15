@@ -1,4 +1,4 @@
-INSERT INTO events VALUES
+INSERT INTO events VALUES 
 
 -- Example: TODO
 (
