@@ -484,22 +484,22 @@ fn dispatch(config: &Config, matches: &ArgMatches) {
         TABLE_ENUM_ITEMS => {
             use schema::items::table as my_table;
             //use schema::items::columns as my_columns;
-            use models::item::item::Item as my_model;
+            use models::item::item::Item as MyModel;
             let table_name = "items"; if config.verbose { output_table(table_name) };
             match action_enum { 
                 ACTION_ENUM_COUNT => {
-                    let result: QueryResult<i64> = my_model::db_count();
+                    let result: QueryResult<i64> = MyModel::db_count();
                     let count: i64 = result.unwrap_or_else(|_| panic!("cannot {} {}", action_name, table_name));
                     output_count_i64(count);
                 },
                 ACTION_ENUM_LIST => {
                     let connection = contactopensource::db_connection();
-                    let result: Result<Vec<my_model>, diesel::result::Error> = my_table.load::<my_model>(&connection);
-                    let xx: Vec<my_model> = result.unwrap_or_else(|_| panic!("cannot {} {}", action_name, table_name));
+                    let result: Result<Vec<MyModel>, diesel::result::Error> = my_table.load::<MyModel>(&connection);
+                    let xx: Vec<MyModel> = result.unwrap_or_else(|_| panic!("cannot {} {}", action_name, table_name));
                     for x in xx { output_x(&config, x) };
                 },
                 ACTION_ENUM_CREATE => {
-                    let insertable: my_model = my_model::from_clap_arg_matches(matches); if config.verbose { output_debug(&insertable) };
+                    let insertable: MyModel = MyModel::from_clap_arg_matches(matches); if config.verbose { output_debug(&insertable) };
                     let connection = contactopensource::db_connection();
                     let result: QueryResult<usize> = diesel::insert_into(my_table).values(&insertable).execute(&connection);
                     let count: usize = result.unwrap_or_else(|_| panic!("cannot {} {}", action_name, table_name));
@@ -508,14 +508,14 @@ fn dispatch(config: &Config, matches: &ArgMatches) {
                 ACTION_ENUM_READ => {
                     let id: Uuid = Uuid::parse_str(matches.value_of("id").unwrap()).unwrap(); if config.verbose { output_id(&id) };
                     let connection = contactopensource::db_connection();
-                    let result: Result<my_model, diesel::result::Error> = my_table.find(id).first::<my_model>(&connection);
-                    let x: my_model= result.unwrap_or_else(|_| panic!("cannot {} {}", action_name, table_name));
+                    let result: Result<MyModel, diesel::result::Error> = my_table.find(id).first::<MyModel>(&connection);
+                    let x: MyModel= result.unwrap_or_else(|_| panic!("cannot {} {}", action_name, table_name));
                     output_x(&config, x);
                 },
                 ACTION_ENUM_UPDATE => {
                     //TODO
                     // let id: Uuid = Uuid::parse_str(matches.value_of("id").unwrap()).unwrap(); if config.verbose { output_id(&id) };
-                    // let changesettable: my_model = my_model::from_clap_arg_matches(matches); if config.verbose { output_debug(&changesettable) };
+                    // let changesettable: MyModel = MyModel::from_clap_arg_matches(matches); if config.verbose { output_debug(&changesettable) };
                     // let connection = contactopensource::db_connection();
                     // let result: QueryResult<usize> = diesel::update(my_table.find(id)).set(&changesetttable).execute(&connection);
                     // let count: usize = result.unwrap_or_else(|_| panic!("cannot {} {}", action_name, table_name));
@@ -535,22 +535,22 @@ fn dispatch(config: &Config, matches: &ArgMatches) {
         TABLE_ENUM_ARCS => {
             use schema::arcs::table as my_table;
             //use schema::arcs::columns as my_columns;
-            use models::arc::arc::Arc as my_model;
+            use models::arc::arc::Arc as MyModel;
             let table_name = "arcs"; if config.verbose { output_table(table_name) };
             match action_enum { 
                 ACTION_ENUM_COUNT => {
-                    let result: QueryResult<i64> = my_model::db_count();
+                    let result: QueryResult<i64> = MyModel::db_count();
                     let count: i64 = result.unwrap_or_else(|_| panic!("cannot {} {}", action_name, table_name));
                     output_count_i64(count);
                 },
                 ACTION_ENUM_LIST => {
                     let connection = contactopensource::db_connection();
-                    let result: Result<Vec<my_model>, diesel::result::Error> = my_table.load::<my_model>(&connection);
-                    let xx: Vec<my_model> = result.unwrap_or_else(|_| panic!("cannot {} {}", action_name, table_name));
+                    let result: Result<Vec<MyModel>, diesel::result::Error> = my_table.load::<MyModel>(&connection);
+                    let xx: Vec<MyModel> = result.unwrap_or_else(|_| panic!("cannot {} {}", action_name, table_name));
                     for x in xx { output_x(&config, x) };
                 },
                 ACTION_ENUM_CREATE => {
-                    let insertable: my_model = my_model::from_clap_arg_matches(matches); if config.verbose { output_debug(&insertable) };
+                    let insertable: MyModel = MyModel::from_clap_arg_matches(matches); if config.verbose { output_debug(&insertable) };
                     let connection = contactopensource::db_connection();
                     let result: QueryResult<usize> = diesel::insert_into(my_table).values(&insertable).execute(&connection);
                     let count: usize = result.unwrap_or_else(|_| panic!("cannot {} {}", action_name, table_name));
@@ -559,8 +559,8 @@ fn dispatch(config: &Config, matches: &ArgMatches) {
                 ACTION_ENUM_READ => {
                     let id: Uuid = Uuid::parse_str(matches.value_of("id").unwrap()).unwrap(); if config.verbose { output_id(&id) };
                     let connection = contactopensource::db_connection();
-                    let result: Result<my_model, diesel::result::Error> = my_table.find(id).first::<my_model>(&connection);
-                    let x: my_model= result.unwrap_or_else(|_| panic!("cannot {} {}", action_name, table_name));
+                    let result: Result<MyModel, diesel::result::Error> = my_table.find(id).first::<MyModel>(&connection);
+                    let x: MyModel= result.unwrap_or_else(|_| panic!("cannot {} {}", action_name, table_name));
                     output_x(&config, x);
                 },
                 ACTION_ENUM_UPDATE => {
